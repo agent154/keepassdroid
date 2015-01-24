@@ -28,7 +28,7 @@ public class LockingPreferenceActivity extends PreferenceActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		TimeoutHelper.pause(this);
 	}
 

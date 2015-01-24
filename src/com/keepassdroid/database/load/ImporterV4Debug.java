@@ -34,9 +34,7 @@ public class ImporterV4Debug extends ImporterV4 {
 	}
 
 	@Override
-	public PwDatabaseV4Debug openDatabase(InputStream inStream, String password,
-			String keyfile, UpdateStatus status) throws IOException,
-			InvalidDBException {
+	public PwDatabaseV4Debug openDatabase(InputStream inStream, String password, String keyfile, UpdateStatus status) throws IOException, InvalidDBException {
 		return (PwDatabaseV4Debug) super.openDatabase(inStream, password, keyfile, status);
 	}
 

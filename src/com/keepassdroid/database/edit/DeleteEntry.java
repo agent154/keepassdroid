@@ -24,34 +24,35 @@ import com.keepassdroid.database.PwDatabase;
 import com.keepassdroid.database.PwEntry;
 import com.keepassdroid.database.PwGroup;
 
-/** Task to delete entries
+/**
+ * Task to delete entries
+ * 
  * @author bpellin
- *
  */
 public class DeleteEntry extends RunnableOnFinish {
 
-	private Database mDb;
-	private PwEntry mEntry;
-	private boolean mDontSave;
-	
+	private Database	mDb;
+	private PwEntry		mEntry;
+	private boolean		mDontSave;
+
 	public DeleteEntry(Database db, PwEntry entry, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mEntry = entry;
 		mDontSave = false;
-		
+
 	}
-	
+
 	public DeleteEntry(Database db, PwEntry entry, OnFinish finish, boolean dontSave) {
 		super(finish);
-		
+
 		mDb = db;
 		mEntry = entry;
 		mDontSave = dontSave;
-		
+
 	}
-	
+
 	@Override
 	public void run() {
 		PwDatabase pm = mDb.pm;
@@ -61,44 +62,42 @@ public class DeleteEntry extends RunnableOnFinish {
 		boolean recycle = pm.canRecycle(mEntry);
 		if (recycle) {
 			pm.recycle(mEntry);
-		}
-		else {
+		} else {
 			pm.deleteEntry(mEntry);
 		}
-		
+
 		// Save
 		mFinish = new AfterDelete(mFinish, parent, mEntry, recycle);
-		
+
 		// Commit database
 		SaveDB save = new SaveDB(mDb, mFinish, mDontSave);
 		save.run();
-	
-		
+
 	}
 
 	private class AfterDelete extends OnFinish {
 
-		private PwGroup mParent;
-		private PwEntry mEntry;
-		private boolean recycled;
-		
+		private PwGroup	mParent;
+		private PwEntry	mEntry;
+		private boolean	recycled;
+
 		public AfterDelete(OnFinish finish, PwGroup parent, PwEntry entry, boolean r) {
 			super(finish);
-			
+
 			mParent = parent;
 			mEntry = entry;
 			recycled = r;
 		}
-		
+
 		@Override
 		public void run() {
 			PwDatabase pm = mDb.pm;
-			if ( mSuccess ) {
+			if (mSuccess) {
 				// Mark parent dirty
-				if ( mParent != null ) {
+				if (mParent != null) {
 					mDb.dirty.add(mParent);
 				}
-				
+
 				if (recycled) {
 					PwGroup recycleBin = pm.getRecycleBin();
 					mDb.dirty.add(recycleBin);
@@ -107,16 +106,15 @@ public class DeleteEntry extends RunnableOnFinish {
 			} else {
 				if (recycled) {
 					pm.undoRecycle(mEntry, mParent);
-				}
-				else {
+				} else {
 					pm.undoDeleteEntry(mEntry, mParent);
 				}
 			}
 
 			super.run();
-			
+
 		}
-		
+
 	}
-	
+
 }

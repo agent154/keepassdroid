@@ -1,6 +1,5 @@
 package org.bouncycastle.asn1;
 
-public interface DEREncodable
-{
-    public DERObject getDERObject();
+public interface DEREncodable {
+	public DERObject getDERObject();
 }

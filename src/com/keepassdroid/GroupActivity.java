@@ -52,36 +52,36 @@ import com.keepassdroid.view.GroupRootView;
 import com.keepassdroid.view.GroupViewOnlyView;
 
 public abstract class GroupActivity extends GroupBaseActivity {
-	
-	public static final int UNINIT = -1;
-	
-	protected boolean addGroupEnabled = false;
-	protected boolean addEntryEnabled = false;
-	protected boolean isRoot = false;
-	protected boolean readOnly = false;
-	
-	private static final String TAG = "Group Activity:";
-	
+
+	public static final int			UNINIT					= -1;
+
+	protected boolean						addGroupEnabled	= false;
+	protected boolean						addEntryEnabled	= false;
+	protected boolean						isRoot					= false;
+	protected boolean						readOnly				= false;
+
+	private static final String	TAG							= "Group Activity:";
+
 	public static void Launch(Activity act) {
 		Launch(act, null);
 	}
-	
+
 	public static void Launch(Activity act, PwGroup group) {
 		Intent i;
-		
+
 		// Need to use PwDatabase since group may be null
 		PwDatabase db = App.getDB().pm;
-		if ( db instanceof PwDatabaseV3 ) {
+		if (db instanceof PwDatabaseV3) {
 			i = new Intent(act, GroupActivityV3.class);
-		
-			if ( group != null ) {
+
+			if (group != null) {
 				PwGroupV3 g = (PwGroupV3) group;
 				i.putExtra(KEY_ENTRY, g.groupId);
 			}
-		} else if ( db instanceof PwDatabaseV4 ) {
+		} else if (db instanceof PwDatabaseV4) {
 			i = new Intent(act, GroupActivityV4.class);
-			
-			if ( group != null ) {
+
+			if (group != null) {
 				PwGroupV4 g = (PwGroupV4) group;
 				i.putExtra(KEY_ENTRY, g.uuid.toString());
 			}
@@ -90,55 +90,55 @@ public abstract class GroupActivity extends GroupBaseActivity {
 			Log.d(TAG, "Tried to launch with null db");
 			return;
 		}
-		
-		act.startActivityForResult(i,0);
+
+		act.startActivityForResult(i, 0);
 	}
-	
+
 	protected abstract PwGroupId retrieveGroupId(Intent i);
-	
+
 	protected void setupButtons() {
 		addGroupEnabled = !readOnly;
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		if ( isFinishing() ) {
+
+		if (isFinishing()) {
 			return;
 		}
-		
+
 		setResult(KeePass.EXIT_NORMAL);
-		
+
 		Log.w(TAG, "Creating group view");
 		Intent intent = getIntent();
-		
+
 		PwGroupId id = retrieveGroupId(intent);
-		
+
 		Database db = App.getDB();
 		readOnly = db.readOnly;
 		PwGroup root = db.pm.rootGroup;
-		if ( id == null ) {
+		if (id == null) {
 			mGroup = root;
 		} else {
 			mGroup = db.pm.groups.get(id);
 		}
-		
+
 		Log.w(TAG, "Retrieved group");
-		if ( mGroup == null ) {
+		if (mGroup == null) {
 			Log.w(TAG, "Group was null");
 			return;
 		}
-		
+
 		isRoot = mGroup == root;
-		
+
 		setupButtons();
 
-		if ( addGroupEnabled && addEntryEnabled ) {
+		if (addGroupEnabled && addEntryEnabled) {
 			setContentView(new GroupAddEntryView(this));
-		} else if ( addGroupEnabled ) {
+		} else if (addGroupEnabled) {
 			setContentView(new GroupRootView(this));
-		} else if ( addEntryEnabled ) {
+		} else if (addEntryEnabled) {
 			setContentView(new GroupAddEntryView(this));
 			Button addGroup = (Button) findViewById(R.id.add_group);
 			addGroup.setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public abstract class GroupActivity extends GroupBaseActivity {
 		}
 		Log.w(TAG, "Set view");
 
-		if ( addGroupEnabled ) {
+		if (addGroupEnabled) {
 			// Add Group button
 			Button addGroup = (Button) findViewById(R.id.add_group);
 			addGroup.setOnClickListener(new View.OnClickListener() {
@@ -157,54 +157,49 @@ public abstract class GroupActivity extends GroupBaseActivity {
 				}
 			});
 		}
-		
-		if ( addEntryEnabled ) {
+
+		if (addEntryEnabled) {
 			// Add Entry button
 			Button addEntry = (Button) findViewById(R.id.add_entry);
 			addEntry.setOnClickListener(new View.OnClickListener() {
-	
+
 				public void onClick(View v) {
 					EntryEditActivity.Launch(GroupActivity.this, mGroup);
 				}
 			});
 		}
-		
+
 		setGroupTitle();
 		setGroupIcon();
 
 		setListAdapter(new PwGroupListAdapter(this, mGroup));
 		registerForContextMenu(getListView());
 		Log.w(TAG, "Finished creating group");
-		
+
 		if (isRoot) {
 			showWarnings();
 		}
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+
 		AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) menuInfo;
 		ClickView cv = (ClickView) acmi.targetView;
 		cv.onCreateMenu(menu, menuInfo);
 	}
-	
-	
-	
+
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) item.getMenuInfo();
 		ClickView cv = (ClickView) acmi.targetView;
-		
+
 		return cv.onContextItemSelected(item);
 	}
-	
+
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		switch (resultCode)
-		{
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (resultCode) {
 			case Activity.RESULT_OK:
 				String GroupName = data.getExtras().getString(GroupEditActivity.KEY_NAME);
 				int GroupIconID = data.getExtras().getInt(GroupEditActivity.KEY_ICON_ID);
@@ -220,15 +215,15 @@ public abstract class GroupActivity extends GroupBaseActivity {
 				break;
 		}
 	}
-	
+
 	protected void showWarnings() {
 		if (App.getDB().readOnly) {
-		    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		    
-		    if (prefs.getBoolean(getString(R.string.show_read_only_warning), true)) {
-			    Dialog dialog = new ReadOnlyDialog(this);
-			    dialog.show();
-		    }
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+			if (prefs.getBoolean(getString(R.string.show_read_only_warning), true)) {
+				Dialog dialog = new ReadOnlyDialog(this);
+				dialog.show();
+			}
 		}
 	}
 }

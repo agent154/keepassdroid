@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class CountOutputStream extends OutputStream {
-	OutputStream os;
-	long bytes = 0;
-	
+	OutputStream	os;
+	long					bytes	= 0;
+
 	public CountOutputStream(OutputStream os) {
 		this.os = os;
 	}
-
 
 	@Override
 	public void close() throws IOException {
@@ -40,7 +39,6 @@ public class CountOutputStream extends OutputStream {
 	public void flush() throws IOException {
 		os.flush();
 	}
-
 
 	@Override
 	public void write(byte[] buffer, int offset, int count) throws IOException {

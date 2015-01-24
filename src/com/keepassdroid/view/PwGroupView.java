@@ -19,7 +19,6 @@
  */
 package com.keepassdroid.view;
 
-
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,52 +35,51 @@ import com.keepassdroid.database.PwGroup;
 import com.keepassdroid.database.PwGroupV3;
 import com.keepassdroid.settings.PrefsUtil;
 
-
 public class PwGroupView extends ClickView {
-	
-	protected PwGroup mPw;
-	protected GroupBaseActivity mAct;
-	protected TextView mTv;
 
-	protected static final int MENU_OPEN = Menu.FIRST;
-	
+	protected PwGroup						mPw;
+	protected GroupBaseActivity	mAct;
+	protected TextView					mTv;
+
+	protected static final int	MENU_OPEN	= Menu.FIRST;
+
 	public static PwGroupView getInstance(GroupBaseActivity act, PwGroup pw) {
-		if ( pw instanceof PwGroupV3 ) {
+		if (pw instanceof PwGroupV3) {
 			return new PwGroupViewV3(act, pw);
 		} else {
 			return new PwGroupView(act, pw);
 		}
 	}
-	
+
 	protected PwGroupView(GroupBaseActivity act, PwGroup pw) {
 		super(act);
 		mAct = act;
-		
+
 		View gv = View.inflate(act, R.layout.group_list_entry, null);
-		
+
 		mTv = (TextView) gv.findViewById(R.id.group_text);
-		float size = PrefsUtil.getListTextSize(act); 
+		float size = PrefsUtil.getListTextSize(act);
 		mTv.setTextSize(size);
-		
+
 		TextView label = (TextView) gv.findViewById(R.id.group_label);
-		label.setTextSize(size-8);
-		
+		label.setTextSize(size - 8);
+
 		populateView(gv, pw);
-		
+
 		LayoutParams lp = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		
+
 		addView(gv, lp);
 	}
-	
+
 	private void populateView(View gv, PwGroup pw) {
 		mPw = pw;
-		
+
 		ImageView iv = (ImageView) gv.findViewById(R.id.group_icon);
 		App.getDB().drawFactory.assignDrawableTo(iv, getResources(), pw.getIcon());
-		
+
 		mTv.setText(pw.getName());
 	}
-	
+
 	public void convertView(PwGroup pw) {
 		populateView(this, pw);
 	}
@@ -89,7 +87,7 @@ public class PwGroupView extends ClickView {
 	public void onClick() {
 		launchGroup();
 	}
-	
+
 	private void launchGroup() {
 		GroupActivity.Launch(mAct, mPw);
 	}
@@ -101,14 +99,14 @@ public class PwGroupView extends ClickView {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		switch ( item.getItemId() ) {
-			
-		case MENU_OPEN:
-			launchGroup();
-			return true;
-		
-		default:
-			return false;
+		switch (item.getItemId()) {
+
+			case MENU_OPEN:
+				launchGroup();
+				return true;
+
+			default:
+				return false;
 		}
 	}
 

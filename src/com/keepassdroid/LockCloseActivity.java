@@ -35,16 +35,18 @@ public class LockCloseActivity extends LockingActivity {
 
 		checkShutdown();
 	}
-	
+
 	private void checkShutdown() {
-		if ( App.isShutdown() && App.getDB().Loaded() ) {
+		if (App.isShutdown() && App.getDB().Loaded()) {
 			setResult(KeePass.EXIT_LOCK);
 			finish();
 		}
-		
+
 	}
 
-	/* (non-Javadoc) Workaround for HTC Linkify issues 
+	/*
+	 * (non-Javadoc) Workaround for HTC Linkify issues
+	 * 
 	 * @see android.app.Activity#startActivity(android.content.Intent)
 	 */
 	@Override

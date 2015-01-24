@@ -43,36 +43,36 @@ import javax.crypto.spec.IvParameterSpec;
 import android.util.Log;
 
 public class NativeAESCipherSpi extends CipherSpi {
-	
-	private static boolean mIsStaticInit = false;
-	private static HashMap<PhantomReference<NativeAESCipherSpi>, Long> mCleanup = new HashMap<PhantomReference<NativeAESCipherSpi>, Long>();
-	private static ReferenceQueue<NativeAESCipherSpi> mQueue = new ReferenceQueue<NativeAESCipherSpi>();
-	
-	private final int AES_BLOCK_SIZE = 16;
-	private byte[] mIV;
-	
-	private boolean mIsInited = false;
-	private boolean mEncrypting = false;
-	private long mCtxPtr;
-	
-	private boolean mPadding  = false;
-	
+
+	private static boolean																							mIsStaticInit		= false;
+	private static HashMap<PhantomReference<NativeAESCipherSpi>, Long>	mCleanup				= new HashMap<PhantomReference<NativeAESCipherSpi>, Long>();
+	private static ReferenceQueue<NativeAESCipherSpi>										mQueue					= new ReferenceQueue<NativeAESCipherSpi>();
+
+	private final int																										AES_BLOCK_SIZE	= 16;
+	private byte[]																											mIV;
+
+	private boolean																											mIsInited				= false;
+	private boolean																											mEncrypting			= false;
+	private long																												mCtxPtr;
+
+	private boolean																											mPadding				= false;
+
 	private static void staticInit() {
 		mIsStaticInit = true;
-		
+
 		// Start the cipher context cleanup thread to run forever
 		(new Thread(new Cleanup())).start();
 	}
-	
+
 	private static void addToCleanupQueue(NativeAESCipherSpi ref, long ptr) {
 		Log.d("KeepassDroid", "queued cipher context: " + ptr);
 		mCleanup.put(new PhantomReference<NativeAESCipherSpi>(ref, mQueue), ptr);
 	}
-	
-	/** Work with the garbage collector to clean up openssl memory when the cipher
-	 *  context is garbage collected.
+
+	/**
+	 * Work with the garbage collector to clean up openssl memory when the cipher context is garbage collected.
+	 * 
 	 * @author bpellin
-	 *
 	 */
 	private static class Cleanup implements Runnable {
 
@@ -80,43 +80,42 @@ public class NativeAESCipherSpi extends CipherSpi {
 			while (true) {
 				try {
 					Reference<? extends NativeAESCipherSpi> ref = mQueue.remove();
-					
+
 					long ctx = mCleanup.remove(ref);
 					nCleanup(ctx);
 					Log.d("KeePassDroid", "Cleaned up cipher context: " + ctx);
-					
+
 				} catch (InterruptedException e) {
 					// Do nothing, but resume looping if mQueue.remove is interrupted
 				}
 			}
 		}
-		
+
 	}
-	
+
 	private static native void nCleanup(long ctxPtr);
 
 	public NativeAESCipherSpi() {
-		if ( ! mIsStaticInit ) {
+		if (!mIsStaticInit) {
 			staticInit();
 		}
 	}
-	
+
 	@Override
-	protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
-			throws IllegalBlockSizeException, BadPaddingException {
+	protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen) throws IllegalBlockSizeException, BadPaddingException {
 		int maxSize = engineGetOutputSize(inputLen);
 		byte[] output = new byte[maxSize];
-		
+
 		int finalSize;
-		
+
 		try {
 			finalSize = doFinal(input, inputOffset, inputLen, output, 0);
 		} catch (ShortBufferException e) {
 			// This shouldn't be possible rethrow as RuntimeException
 			throw new RuntimeException("Short buffer exception shouldn't be possible from here.");
 		}
-		
-		if ( maxSize == finalSize ) {
+
+		if (maxSize == finalSize) {
 			return output;
 		} else {
 			// TODO: Special doFinal to avoid this copy
@@ -127,41 +126,36 @@ public class NativeAESCipherSpi extends CipherSpi {
 	}
 
 	@Override
-	protected int engineDoFinal(byte[] input, int inputOffset, int inputLen,
-			byte[] output, int outputOffset) throws ShortBufferException,
-			IllegalBlockSizeException, BadPaddingException {
-		
+	protected int engineDoFinal(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
+
 		int result = doFinal(input, inputOffset, inputLen, output, outputOffset);
-		
-		if ( result == -1 ) {
+
+		if (result == -1) {
 			throw new ShortBufferException();
 		}
-		
+
 		return result;
 	}
-	
-	private int doFinal(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) 
-			throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
-		
+
+	private int doFinal(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) throws ShortBufferException, IllegalBlockSizeException, BadPaddingException {
+
 		int outputSize = engineGetOutputSize(inputLen);
-		
+
 		int updateAmt;
 		if (input != null && inputLen > 0) {
 			updateAmt = nUpdate(mCtxPtr, input, inputOffset, inputLen, output, outputOffset, outputSize);
 		} else {
 			updateAmt = 0;
 		}
-		
-		int finalAmt = nFinal(mCtxPtr, mPadding, output, outputOffset + updateAmt, outputSize - updateAmt); 
-		
+
+		int finalAmt = nFinal(mCtxPtr, mPadding, output, outputOffset + updateAmt, outputSize - updateAmt);
+
 		int out = updateAmt + finalAmt;
-		
-		
+
 		return out;
 	}
-	
-	private native int nFinal(long ctxPtr, boolean usePadding, byte[] output, int outputOffest, int outputSize)
-			throws ShortBufferException, IllegalBlockSizeException, BadPaddingException;
+
+	private native int nFinal(long ctxPtr, boolean usePadding, byte[] output, int outputOffest, int outputSize) throws ShortBufferException, IllegalBlockSizeException, BadPaddingException;
 
 	@Override
 	protected int engineGetBlockSize() {
@@ -177,7 +171,7 @@ public class NativeAESCipherSpi extends CipherSpi {
 	protected int engineGetOutputSize(int inputLen) {
 		return inputLen + nGetCacheSize(mCtxPtr) + AES_BLOCK_SIZE;
 	}
-	
+
 	private native int nGetCacheSize(long ctxPtr);
 
 	@Override
@@ -187,37 +181,31 @@ public class NativeAESCipherSpi extends CipherSpi {
 	}
 
 	@Override
-	protected void engineInit(int opmode, Key key, SecureRandom random)
-			throws InvalidKeyException {
+	protected void engineInit(int opmode, Key key, SecureRandom random) throws InvalidKeyException {
 
 		byte[] ivArray = new byte[16];
 		random.nextBytes(ivArray);
-		
+
 		init(opmode, key, new IvParameterSpec(ivArray));
 	}
 
 	@Override
-	protected void engineInit(int opmode, Key key,
-			AlgorithmParameterSpec params, SecureRandom random)
-			throws InvalidKeyException, InvalidAlgorithmParameterException {
-		
+	protected void engineInit(int opmode, Key key, AlgorithmParameterSpec params, SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+
 		IvParameterSpec ivparam;
-		
-		if ( params instanceof IvParameterSpec ) {
+
+		if (params instanceof IvParameterSpec) {
 			ivparam = (IvParameterSpec) params;
 		} else {
 			throw new InvalidAlgorithmParameterException("params must be an IvParameterSpec.");
 		}
-		
+
 		init(opmode, key, ivparam);
 	}
-	
 
 	@Override
-	protected void engineInit(int opmode, Key key, AlgorithmParameters params,
-			SecureRandom random) throws InvalidKeyException,
-			InvalidAlgorithmParameterException {
-		
+	protected void engineInit(int opmode, Key key, AlgorithmParameters params, SecureRandom random) throws InvalidKeyException, InvalidAlgorithmParameterException {
+
 		try {
 			engineInit(opmode, key, params.getParameterSpec(AlgorithmParameterSpec.class), random);
 		} catch (InvalidParameterSpecException e) {
@@ -227,58 +215,57 @@ public class NativeAESCipherSpi extends CipherSpi {
 	}
 
 	private void init(int opmode, Key key, IvParameterSpec params) {
-		if ( mIsInited ) {
+		if (mIsInited) {
 			// Do not allow multiple inits
-			assert(true);
+			assert (true);
 			throw new RuntimeException("Don't allow multiple inits");
 		} else {
 			NativeLib.init();
 			mIsInited = true;
 		}
-		
+
 		mIV = params.getIV();
 		mEncrypting = opmode == Cipher.ENCRYPT_MODE;
 		mCtxPtr = nInit(mEncrypting, key.getEncoded(), mIV);
 		addToCleanupQueue(this, mCtxPtr);
 	}
-	
+
 	private native long nInit(boolean encrypting, byte[] key, byte[] iv);
-	
+
 	@Override
 	protected void engineSetMode(String mode) throws NoSuchAlgorithmException {
-		if ( ! mode.equals("CBC") ) {
+		if (!mode.equals("CBC")) {
 			throw new NoSuchAlgorithmException("This only supports CBC mode");
 		}
 	}
 
 	@Override
-	protected void engineSetPadding(String padding)
-			throws NoSuchPaddingException {
-		
-		if ( ! mIsInited ) {
+	protected void engineSetPadding(String padding) throws NoSuchPaddingException {
+
+		if (!mIsInited) {
 			NativeLib.init();
 		}
-		
-		if ( padding.length() == 0 ) {
+
+		if (padding.length() == 0) {
 			return;
 		}
 
-		if ( ! padding.equals("PKCS5Padding") ) {
+		if (!padding.equals("PKCS5Padding")) {
 			throw new NoSuchPaddingException("Only supports PKCS5Padding.");
 		}
-		
+
 		mPadding = true;
-			
+
 	}
-	
+
 	@Override
 	protected byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
 		int maxSize = engineGetOutputSize(inputLen);
 		byte output[] = new byte[maxSize];
-		
+
 		int updateSize = update(input, inputOffset, inputLen, output, 0);
-		
-		if ( updateSize == maxSize ) {
+
+		if (updateSize == maxSize) {
 			return output;
 		} else {
 			// TODO: We could optimize update for this case to avoid this extra copy
@@ -286,34 +273,31 @@ public class NativeAESCipherSpi extends CipherSpi {
 			System.arraycopy(output, 0, exact, 0, updateSize);
 			return exact;
 		}
-		
+
 	}
 
 	@Override
-	protected int engineUpdate(byte[] input, int inputOffset, int inputLen,
-			byte[] output, int outputOffset) throws ShortBufferException {
-		
+	protected int engineUpdate(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) throws ShortBufferException {
+
 		int result = update(input, inputOffset, inputLen, output, outputOffset);
-		
-		if ( result == -1 ) {
+
+		if (result == -1) {
 			throw new ShortBufferException("Insufficient buffer.");
 		}
-		
+
 		return result;
-		
+
 	}
-	
+
 	int update(byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset) {
 		int outputSize = engineGetOutputSize(inputLen);
-		
+
 		int out = nUpdate(mCtxPtr, input, inputOffset, inputLen, output, outputOffset, outputSize);
-		
-		
+
 		return out;
-		
-		
+
 	}
-	
+
 	private native int nUpdate(long ctxPtr, byte[] input, int inputOffset, int inputLen, byte[] output, int outputOffset, int outputSize);
-	
+
 }

@@ -33,33 +33,31 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.keepassdroid.compat.EditorCompat;
 
 public class FileDbHelper {
-	
-	public static final String LAST_FILENAME = "lastFile";
-	public static final String LAST_KEYFILE = "lastKey";
-	
-	public static final String DATABASE_NAME = "keepassdroid";
-	private static final String FILE_TABLE = "files";
-	private static final int DATABASE_VERSION = 1;
-	
-	public static final int MAX_FILES = 5;
-	
-	public static final String KEY_FILE_ID = "_id";
-	public static final String KEY_FILE_FILENAME = "fileName";
-	public static final String KEY_FILE_KEYFILE = "keyFile";
-	public static final String KEY_FILE_UPDATED = "updated";
 
-	private static final String DATABASE_CREATE = 
-		"create table " + FILE_TABLE + " ( " + KEY_FILE_ID + " integer primary key autoincrement, " 
-			+ KEY_FILE_FILENAME + " text not null, " + KEY_FILE_KEYFILE + " text, "
-			+ KEY_FILE_UPDATED + " integer not null);";
-	
-	private final Context mCtx;
-	private DatabaseHelper mDbHelper;
-	private SQLiteDatabase mDb;
-	
+	public static final String	LAST_FILENAME			= "lastFile";
+	public static final String	LAST_KEYFILE			= "lastKey";
+
+	public static final String	DATABASE_NAME			= "keepassdroid";
+	private static final String	FILE_TABLE				= "files";
+	private static final int		DATABASE_VERSION	= 1;
+
+	public static final int			MAX_FILES					= 5;
+
+	public static final String	KEY_FILE_ID				= "_id";
+	public static final String	KEY_FILE_FILENAME	= "fileName";
+	public static final String	KEY_FILE_KEYFILE	= "keyFile";
+	public static final String	KEY_FILE_UPDATED	= "updated";
+
+	private static final String	DATABASE_CREATE		= "create table " + FILE_TABLE + " ( " + KEY_FILE_ID + " integer primary key autoincrement, " + KEY_FILE_FILENAME + " text not null, "
+																										+ KEY_FILE_KEYFILE + " text, " + KEY_FILE_UPDATED + " integer not null);";
+
+	private final Context				mCtx;
+	private DatabaseHelper			mDbHelper;
+	private SQLiteDatabase			mDb;
+
 	private static class DatabaseHelper extends SQLiteOpenHelper {
-		private final Context mCtx;
-		
+		private final Context	mCtx;
+
 		DatabaseHelper(Context ctx) {
 			super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
 			mCtx = ctx;
@@ -68,26 +66,26 @@ public class FileDbHelper {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL(DATABASE_CREATE);
-			
+
 			// Migrate preference to database if it is set.
-			SharedPreferences settings = mCtx.getSharedPreferences("PasswordActivity", Context.MODE_PRIVATE); 
+			SharedPreferences settings = mCtx.getSharedPreferences("PasswordActivity", Context.MODE_PRIVATE);
 			String lastFile = settings.getString(LAST_FILENAME, "");
-			String lastKey = settings.getString(LAST_KEYFILE,"");
-						
-			if ( lastFile.length() > 0 ) {
+			String lastKey = settings.getString(LAST_KEYFILE, "");
+
+			if (lastFile.length() > 0) {
 				ContentValues vals = new ContentValues();
 				vals.put(KEY_FILE_FILENAME, lastFile);
 				vals.put(KEY_FILE_UPDATED, System.currentTimeMillis());
-				
-				if ( lastKey.length() > 0 ) {
+
+				if (lastKey.length() > 0) {
 					vals.put(KEY_FILE_KEYFILE, lastKey);
 				}
-				
+
 				db.insert(FILE_TABLE, null, vals);
-				
+
 				// Clear old preferences
 				deletePrefs(settings);
-				
+
 			}
 		}
 
@@ -95,7 +93,7 @@ public class FileDbHelper {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			// Only one database version so far
 		}
-		
+
 		private void deletePrefs(SharedPreferences prefs) {
 			// We won't worry too much if this fails
 			try {
@@ -104,132 +102,128 @@ public class FileDbHelper {
 				editor.remove(LAST_KEYFILE);
 				EditorCompat.apply(editor);
 			} catch (Exception e) {
-				assert(true);
+				assert (true);
 			}
 		}
 	}
-	
+
 	public FileDbHelper(Context ctx) {
 		mCtx = ctx;
 	}
-	
+
 	public FileDbHelper open() throws SQLException {
 		mDbHelper = new DatabaseHelper(mCtx);
 		mDb = mDbHelper.getWritableDatabase();
 		return this;
 	}
-	
+
 	public boolean isOpen() {
 		return mDb.isOpen();
 	}
-	
+
 	public void close() {
 		mDb.close();
 	}
-	
+
 	public long createFile(String fileName, String keyFile) {
-		
+
 		// Check to see if this filename is already used
 		Cursor cursor;
 		try {
-			cursor = mDb.query(true, FILE_TABLE, new String[] {KEY_FILE_ID}, 
-					KEY_FILE_FILENAME + "=?", new String[] {fileName}, null, null, null, null);
-		} catch (Exception e ) {
-			assert(true);
+			cursor = mDb.query(true, FILE_TABLE, new String[] { KEY_FILE_ID }, KEY_FILE_FILENAME + "=?", new String[] { fileName }, null, null, null, null);
+		} catch (Exception e) {
+			assert (true);
 			return -1;
 		}
-		
+
 		long result;
 		// If there is an existing entry update it with the new key file
-		if ( cursor.getCount() > 0 ) {
+		if (cursor.getCount() > 0) {
 			cursor.moveToFirst();
 			long id = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILE_ID));
-			
+
 			ContentValues vals = new ContentValues();
 			vals.put(KEY_FILE_KEYFILE, keyFile);
 			vals.put(KEY_FILE_UPDATED, System.currentTimeMillis());
-			
+
 			result = mDb.update(FILE_TABLE, vals, KEY_FILE_ID + " = " + id, null);
-		
-		// Otherwise add the new entry
+
+			// Otherwise add the new entry
 		} else {
 			ContentValues vals = new ContentValues();
 			vals.put(KEY_FILE_FILENAME, fileName);
 			vals.put(KEY_FILE_KEYFILE, keyFile);
 			vals.put(KEY_FILE_UPDATED, System.currentTimeMillis());
-			
+
 			result = mDb.insert(FILE_TABLE, null, vals);
-			
+
 		}
 		// Delete all but the last five records
 		try {
 			deleteAllBut(MAX_FILES);
 		} catch (Exception e) {
 			e.printStackTrace();
-			assert(true);
+			assert (true);
 		}
-		
+
 		cursor.close();
-		
+
 		return result;
-		
+
 	}
-	
+
 	private void deleteAllBut(int limit) {
-		Cursor cursor = mDb.query(FILE_TABLE, new String[] {KEY_FILE_UPDATED}, null, null, null, null, KEY_FILE_UPDATED);
-		
-		if ( cursor.getCount() > limit ) {
+		Cursor cursor = mDb.query(FILE_TABLE, new String[] { KEY_FILE_UPDATED }, null, null, null, null, KEY_FILE_UPDATED);
+
+		if (cursor.getCount() > limit) {
 			cursor.moveToFirst();
 			long time = cursor.getLong(cursor.getColumnIndexOrThrow(KEY_FILE_UPDATED));
-			
+
 			mDb.execSQL("DELETE FROM " + FILE_TABLE + " WHERE " + KEY_FILE_UPDATED + "<" + time + ";");
 		}
-		
+
 		cursor.close();
-		
+
 	}
-	
+
 	public void deleteAllKeys() {
 		ContentValues vals = new ContentValues();
 		vals.put(KEY_FILE_KEYFILE, "");
-		
+
 		mDb.update(FILE_TABLE, vals, null, null);
 	}
-	
+
 	public void deleteFile(String filename) {
-		mDb.delete(FILE_TABLE, KEY_FILE_FILENAME + " = ?", new String[] {filename});
+		mDb.delete(FILE_TABLE, KEY_FILE_FILENAME + " = ?", new String[] { filename });
 	}
-	
-	
+
 	public Cursor fetchAllFiles() {
 		Cursor ret;
-		ret = mDb.query(FILE_TABLE, new String[] {KEY_FILE_ID, KEY_FILE_FILENAME, KEY_FILE_KEYFILE }, null, null, null, null, KEY_FILE_UPDATED + " DESC", Integer.toString(MAX_FILES));
+		ret = mDb.query(FILE_TABLE, new String[] { KEY_FILE_ID, KEY_FILE_FILENAME, KEY_FILE_KEYFILE }, null, null, null, null, KEY_FILE_UPDATED + " DESC", Integer.toString(MAX_FILES));
 		return ret;
 	}
-	
+
 	public Cursor fetchFile(long fileId) throws SQLException {
-		Cursor cursor = mDb.query(true, FILE_TABLE, new String[] {KEY_FILE_FILENAME, KEY_FILE_KEYFILE}, 
-				KEY_FILE_ID + "=" + fileId, null, null, null, null, null);
-		
-		if ( cursor != null ) {
+		Cursor cursor = mDb.query(true, FILE_TABLE, new String[] { KEY_FILE_FILENAME, KEY_FILE_KEYFILE }, KEY_FILE_ID + "=" + fileId, null, null, null, null, null);
+
+		if (cursor != null) {
 			cursor.moveToFirst();
 		}
-		
+
 		return cursor;
-		
+
 	}
-	
+
 	public String getFileByName(String name) {
-		Cursor cursor = mDb.query(true, FILE_TABLE, new String[] {KEY_FILE_KEYFILE}, 
-				KEY_FILE_FILENAME + "= ?", new String[] {name}, null, null, null, null);
-		
-		if ( cursor == null ) {
+		Cursor cursor = mDb.query(true, FILE_TABLE, new String[] { KEY_FILE_KEYFILE }, KEY_FILE_FILENAME + "= ?", new String[] { name }, null, null, null, null);
+
+		if (cursor == null) {
 			return "";
 		}
-		
+
 		String filename;
-		
-		if ( cursor.moveToFirst() ) {
+
+		if (cursor.moveToFirst()) {
 			filename = cursor.getString(0);
 		} else {
 			// Cursor is empty
@@ -238,48 +232,49 @@ public class FileDbHelper {
 		cursor.close();
 		return filename;
 	}
-	
+
 	public boolean hasRecentFiles() {
 		Cursor cursor = fetchAllFiles();
-		
+
 		boolean hasRecent = cursor.getCount() > 0;
 		cursor.close();
-		
-		return hasRecent; 
+
+		return hasRecent;
 	}
-	
-    /**
-     * Deletes a database including its journal file and other auxiliary files
-     * that may have been created by the database engine.
-     *
-     * @param file The database file path.
-     * @return True if the database was successfully deleted.
-     */
-    public static boolean deleteDatabase(Context ctx) {
-    	File file = ctx.getDatabasePath(DATABASE_NAME);
-        if (file == null) {
-            throw new IllegalArgumentException("file must not be null");
-        }
 
-        boolean deleted = false;
-        deleted |= file.delete();
-        deleted |= new File(file.getPath() + "-journal").delete();
-        deleted |= new File(file.getPath() + "-shm").delete();
-        deleted |= new File(file.getPath() + "-wal").delete();
+	/**
+	 * Deletes a database including its journal file and other auxiliary files that may have been created by the database
+	 * engine.
+	 * 
+	 * @param file
+	 *          The database file path.
+	 * @return True if the database was successfully deleted.
+	 */
+	public static boolean deleteDatabase(Context ctx) {
+		File file = ctx.getDatabasePath(DATABASE_NAME);
+		if (file == null) {
+			throw new IllegalArgumentException("file must not be null");
+		}
 
-        File dir = file.getParentFile();
-        if (dir != null) {
-            final String prefix = file.getName() + "-mj";
-            final FileFilter filter = new FileFilter() {
-                @Override
-                public boolean accept(File candidate) {
-                    return candidate.getName().startsWith(prefix);
-                }
-            };
-            for (File masterJournal : dir.listFiles(filter)) {
-                deleted |= masterJournal.delete();
-            }
-        }
-        return deleted;
-    }
+		boolean deleted = false;
+		deleted |= file.delete();
+		deleted |= new File(file.getPath() + "-journal").delete();
+		deleted |= new File(file.getPath() + "-shm").delete();
+		deleted |= new File(file.getPath() + "-wal").delete();
+
+		File dir = file.getParentFile();
+		if (dir != null) {
+			final String prefix = file.getName() + "-mj";
+			final FileFilter filter = new FileFilter() {
+				@Override
+				public boolean accept(File candidate) {
+					return candidate.getName().startsWith(prefix);
+				}
+			};
+			for (File masterJournal : dir.listFiles(filter)) {
+				deleted |= masterJournal.delete();
+			}
+		}
+		return deleted;
+	}
 }

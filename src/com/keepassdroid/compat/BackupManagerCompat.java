@@ -24,15 +24,14 @@ import java.lang.reflect.Method;
 
 import android.content.Context;
 
-
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class BackupManagerCompat {
-	private static Class classBackupManager;
-	private static Constructor constructorBackupManager;
-	private static Method dataChanged;
-	
-	private Object backupManager;
-	
+	private static Class				classBackupManager;
+	private static Constructor	constructorBackupManager;
+	private static Method				dataChanged;
+
+	private Object							backupManager;
+
 	static {
 		try {
 			classBackupManager = Class.forName("android.app.backup.BackupManager");
@@ -42,7 +41,7 @@ public class BackupManagerCompat {
 			// Do nothing, class does not exist
 		}
 	}
-	
+
 	public BackupManagerCompat(Context ctx) {
 		if (constructorBackupManager != null) {
 			try {
@@ -52,7 +51,7 @@ public class BackupManagerCompat {
 			}
 		}
 	}
-	
+
 	public void dataChanged() {
 		if (backupManager != null && dataChanged != null) {
 			try {

@@ -43,104 +43,107 @@ import biz.source_code.base64Coder.Base64Coder;
 
 import com.keepassdroid.database.exception.InvalidKeyFileException;
 
-
 public class PwDatabaseV4 extends PwDatabase {
 
-	public static final Date DEFAULT_NOW = new Date();
-    public static final UUID UUID_ZERO = new UUID(0,0);
-	private static final int DEFAULT_HISTORY_MAX_ITEMS = 10; // -1 unlimited
-	private static final long DEFAULT_HISTORY_MAX_SIZE = 6 * 1024 * 1024; // -1 unlimited
-	private static final String RECYCLEBIN_NAME = "RecycleBin";
-	
-	public UUID dataCipher;
-	public PwCompressionAlgorithm compressionAlgorithm;
-    public long numKeyEncRounds;
-    public Date nameChanged = DEFAULT_NOW;
-    public String description;
-    public Date descriptionChanged = DEFAULT_NOW;
-    public String defaultUserName;
-    public Date defaultUserNameChanged = DEFAULT_NOW;
-    
-    public Date keyLastChanged = DEFAULT_NOW;
-    public long keyChangeRecDays = -1;
-    public long keyChangeForceDays = 1;
-    
-    public long maintenanceHistoryDays = 365;
-    public String color = "";
-    public boolean recycleBinEnabled;
-    public UUID recycleBinUUID = null;
-    public Date recycleBinChanged = DEFAULT_NOW;
-    public UUID entryTemplatesGroup;
-    public Date entryTemplatesGroupChanged = DEFAULT_NOW;
-    public int historyMaxItems = DEFAULT_HISTORY_MAX_ITEMS;
-    public long historyMaxSize = DEFAULT_HISTORY_MAX_SIZE;
-    public UUID lastSelectedGroup;
-    public UUID lastTopVisibleGroup;
-    public MemoryProtectionConfig memoryProtection = new MemoryProtectionConfig();
-    public List<PwDeletedObject> deletedObjects = new ArrayList<PwDeletedObject>();
-    public List<PwIconCustom> customIcons = new ArrayList<PwIconCustom>();
-    public Map<String, String> customData = new HashMap<String, String>();
-    
-    public String localizedAppName = "KeePassDroid";
-    
-    public class MemoryProtectionConfig {
-    	public boolean protectTitle = false;
-    	public boolean protectUserName = false;
-    	public boolean protectPassword = false;
-    	public boolean protectUrl = false;
-    	public boolean protectNotes = false;
-    	
-    	public boolean autoEnableVisualHiding = false;
-    	
-    	public boolean GetProtection(String field) {
-    		if ( field.equalsIgnoreCase(PwDefsV4.TITLE_FIELD)) return protectTitle;
-    		if ( field.equalsIgnoreCase(PwDefsV4.USERNAME_FIELD)) return protectUserName;
-    		if ( field.equalsIgnoreCase(PwDefsV4.PASSWORD_FIELD)) return protectPassword;
-    		if ( field.equalsIgnoreCase(PwDefsV4.URL_FIELD)) return protectUrl;
-    		if ( field.equalsIgnoreCase(PwDefsV4.NOTES_FIELD)) return protectNotes;
-    		
-    		return false;
-    	}
-    }
-    
+	public static final Date			DEFAULT_NOW									= new Date();
+	public static final UUID			UUID_ZERO										= new UUID(0, 0);
+	private static final int			DEFAULT_HISTORY_MAX_ITEMS		= 10;															// -1 unlimited
+	private static final long			DEFAULT_HISTORY_MAX_SIZE		= 6 * 1024 * 1024;									// -1 unlimited
+	private static final String		RECYCLEBIN_NAME							= "RecycleBin";
+
+	public UUID										dataCipher;
+	public PwCompressionAlgorithm	compressionAlgorithm;
+	public long										numKeyEncRounds;
+	public Date										nameChanged									= DEFAULT_NOW;
+	public String									description;
+	public Date										descriptionChanged					= DEFAULT_NOW;
+	public String									defaultUserName;
+	public Date										defaultUserNameChanged			= DEFAULT_NOW;
+
+	public Date										keyLastChanged							= DEFAULT_NOW;
+	public long										keyChangeRecDays						= -1;
+	public long										keyChangeForceDays					= 1;
+
+	public long										maintenanceHistoryDays			= 365;
+	public String									color												= "";
+	public boolean								recycleBinEnabled;
+	public UUID										recycleBinUUID							= null;
+	public Date										recycleBinChanged						= DEFAULT_NOW;
+	public UUID										entryTemplatesGroup;
+	public Date										entryTemplatesGroupChanged	= DEFAULT_NOW;
+	public int										historyMaxItems							= DEFAULT_HISTORY_MAX_ITEMS;
+	public long										historyMaxSize							= DEFAULT_HISTORY_MAX_SIZE;
+	public UUID										lastSelectedGroup;
+	public UUID										lastTopVisibleGroup;
+	public MemoryProtectionConfig	memoryProtection						= new MemoryProtectionConfig();
+	public List<PwDeletedObject>	deletedObjects							= new ArrayList<PwDeletedObject>();
+	public List<PwIconCustom>			customIcons									= new ArrayList<PwIconCustom>();
+	public Map<String, String>		customData									= new HashMap<String, String>();
+
+	public String									localizedAppName						= "KeePassDroid";
+
+	public class MemoryProtectionConfig {
+		public boolean	protectTitle						= false;
+		public boolean	protectUserName					= false;
+		public boolean	protectPassword					= false;
+		public boolean	protectUrl							= false;
+		public boolean	protectNotes						= false;
+
+		public boolean	autoEnableVisualHiding	= false;
+
+		public boolean GetProtection(String field) {
+			if (field.equalsIgnoreCase(PwDefsV4.TITLE_FIELD))
+				return protectTitle;
+			if (field.equalsIgnoreCase(PwDefsV4.USERNAME_FIELD))
+				return protectUserName;
+			if (field.equalsIgnoreCase(PwDefsV4.PASSWORD_FIELD))
+				return protectPassword;
+			if (field.equalsIgnoreCase(PwDefsV4.URL_FIELD))
+				return protectUrl;
+			if (field.equalsIgnoreCase(PwDefsV4.NOTES_FIELD))
+				return protectNotes;
+
+			return false;
+		}
+	}
+
 	@Override
-	public byte[] getMasterKey(String key, String keyFileName)
-			throws InvalidKeyFileException, IOException {
-		assert( key != null && keyFileName != null );
-		
+	public byte[] getMasterKey(String key, String keyFileName) throws InvalidKeyFileException, IOException {
+		assert (key != null && keyFileName != null);
+
 		byte[] fKey;
-		
-		if ( key.length() > 0 && keyFileName.length() > 0 ) {
+
+		if (key.length() > 0 && keyFileName.length() > 0) {
 			return getCompositeKey(key, keyFileName);
-		} else if ( key.length() > 0 ) {
-			fKey =  getPasswordKey(key);
-		} else if ( keyFileName.length() > 0 ) {
+		} else if (key.length() > 0) {
+			fKey = getPasswordKey(key);
+		} else if (keyFileName.length() > 0) {
 			fKey = getFileKey(keyFileName);
 		} else {
-			throw new IllegalArgumentException( "Key cannot be empty." );
+			throw new IllegalArgumentException("Key cannot be empty.");
 		}
-		
+
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
 			throw new IOException("No SHA-256 implementation");
 		}
-		
+
 		return md.digest(fKey);
 	}
 
-    @Override
+	@Override
 	public byte[] getPasswordKey(String key) throws IOException {
 		return getPasswordKey(key, "UTF-8");
 	}
-    
-	private static final String RootElementName = "KeyFile";
-	//private static final String MetaElementName = "Meta";
-	//private static final String VersionElementName = "Version";
-	private static final String KeyElementName = "Key";
-	private static final String KeyDataElementName = "Data";
-	
+
+	private static final String	RootElementName			= "KeyFile";
+	// private static final String MetaElementName = "Meta";
+	// private static final String VersionElementName = "Version";
+	private static final String	KeyElementName			= "Key";
+	private static final String	KeyDataElementName	= "Data";
+
 	@Override
 	protected byte[] loadXmlKeyFile(String fileName) {
 		try {
@@ -148,27 +151,27 @@ public class PwDatabaseV4 extends PwDatabase {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			FileInputStream fis = new FileInputStream(fileName);
 			Document doc = db.parse(fis);
-			
+
 			Element el = doc.getDocumentElement();
-			if (el == null || ! el.getNodeName().equalsIgnoreCase(RootElementName)) {
+			if (el == null || !el.getNodeName().equalsIgnoreCase(RootElementName)) {
 				return null;
 			}
-			
+
 			NodeList children = el.getChildNodes();
 			if (children.getLength() < 2) {
 				return null;
 			}
-			
-			for ( int i = 0; i < children.getLength(); i++ ) {
+
+			for (int i = 0; i < children.getLength(); i++) {
 				Node child = children.item(i);
-				
-				if ( child.getNodeName().equalsIgnoreCase(KeyElementName) ) {
+
+				if (child.getNodeName().equalsIgnoreCase(KeyElementName)) {
 					NodeList keyChildren = child.getChildNodes();
-					for ( int j = 0; j < keyChildren.getLength(); j++ ) {
+					for (int j = 0; j < keyChildren.getLength(); j++) {
 						Node keyChild = keyChildren.item(j);
-						if ( keyChild.getNodeName().equalsIgnoreCase(KeyDataElementName) ) {
+						if (keyChild.getNodeName().equalsIgnoreCase(KeyDataElementName)) {
 							NodeList children2 = keyChild.getChildNodes();
-							for ( int k = 0; k < children2.getLength(); k++) {
+							for (int k = 0; k < children2.getLength(); k++) {
 								Node text = children2.item(k);
 								if (text.getNodeType() == Node.TEXT_NODE) {
 									Text txt = (Text) text;
@@ -190,7 +193,7 @@ public class PwDatabaseV4 extends PwDatabase {
 		List<PwGroup> list = new ArrayList<PwGroup>();
 		PwGroupV4 root = (PwGroupV4) rootGroup;
 		root.buildChildGroupsRecursive(list);
-		
+
 		return list;
 	}
 
@@ -204,7 +207,7 @@ public class PwDatabaseV4 extends PwDatabase {
 		List<PwEntry> list = new ArrayList<PwEntry>();
 		PwGroupV4 root = (PwGroupV4) rootGroup;
 		root.buildChildEntriesRecursive(list);
-		
+
 		return list;
 	}
 
@@ -216,7 +219,7 @@ public class PwDatabaseV4 extends PwDatabase {
 	@Override
 	public void setNumRounds(long rounds) throws NumberFormatException {
 		numKeyEncRounds = rounds;
-		
+
 	}
 
 	@Override
@@ -232,13 +235,14 @@ public class PwDatabaseV4 extends PwDatabase {
 	@Override
 	public PwGroupIdV4 newGroupId() {
 		PwGroupIdV4 id = new PwGroupIdV4(UUID_ZERO);
-		
+
 		while (true) {
 			id = new PwGroupIdV4(UUID.randomUUID());
-			
-			if (!isGroupIdUsed(id)) break;
+
+			if (!isGroupIdUsed(id))
+				break;
 		}
-		
+
 		return id;
 	}
 
@@ -252,43 +256,42 @@ public class PwDatabaseV4 extends PwDatabase {
 		if (!recycleBinEnabled) {
 			return false;
 		}
-		
+
 		return group.isContainedIn(getRecycleBin());
 	}
 
 	@Override
 	public void populateGlobals(PwGroup currentGroup) {
 		groups.put(rootGroup.getId(), rootGroup);
-		
+
 		super.populateGlobals(currentGroup);
 	}
-	
-	/** Ensure that the recycle bin group exists, if enabled and create it
-	 *  if it doesn't exist 
-	 *  
+
+	/**
+	 * Ensure that the recycle bin group exists, if enabled and create it if it doesn't exist
 	 */
 	private void ensureRecycleBin() {
 		if (getRecycleBin() == null) {
 			// Create recycle bin
-				
+
 			PwGroupV4 recycleBin = new PwGroupV4(true, true, RECYCLEBIN_NAME, iconFactory.getIcon(PwIconStandard.TRASH_BIN));
 			recycleBin.enableAutoType = false;
 			recycleBin.enableSearching = false;
 			recycleBin.isExpanded = false;
 			addGroupTo(recycleBin, rootGroup);
-			
+
 			recycleBinUUID = recycleBin.uuid;
 		}
 	}
-	
+
 	@Override
 	public boolean canRecycle(PwGroup group) {
 		if (!recycleBinEnabled) {
 			return false;
 		}
-		
+
 		PwGroup recycle = getRecycleBin();
-		
+
 		return (recycle == null) || (!group.isContainedIn(recycle));
 	}
 
@@ -297,46 +300,46 @@ public class PwDatabaseV4 extends PwDatabase {
 		if (!recycleBinEnabled) {
 			return false;
 		}
-		
+
 		PwGroup parent = entry.getParent();
 		return (parent != null) && canRecycle(parent);
 	}
-	
+
 	@Override
 	public void recycle(PwEntry entry) {
 		ensureRecycleBin();
-		
+
 		PwGroup parent = entry.getParent();
 		removeEntryFrom(entry, parent);
 		parent.touch(false, true);
-		
+
 		PwGroup recycleBin = getRecycleBin();
 		addEntryTo(entry, recycleBin);
-		
+
 		entry.touch(false, true);
 		entry.touchLocation();
 	}
 
 	@Override
 	public void undoRecycle(PwEntry entry, PwGroup origParent) {
-		
+
 		PwGroup recycleBin = getRecycleBin();
 		removeEntryFrom(entry, recycleBin);
-		
+
 		addEntryTo(entry, origParent);
 	}
 
 	@Override
 	public void deleteEntry(PwEntry entry) {
 		super.deleteEntry(entry);
-		
+
 		deletedObjects.add(new PwDeletedObject(entry.getUUID()));
 	}
 
 	@Override
 	public void undoDeleteEntry(PwEntry entry, PwGroup origParent) {
 		super.undoDeleteEntry(entry, origParent);
-		
+
 		deletedObjects.remove(entry);
 	}
 
@@ -345,7 +348,7 @@ public class PwDatabaseV4 extends PwDatabase {
 		if (recycleBinUUID == null) {
 			return null;
 		}
-		
+
 		PwGroupId recycleId = new PwGroupIdV4(recycleBinUUID);
 		return (PwGroupV4) groups.get(recycleId);
 	}
@@ -355,10 +358,10 @@ public class PwDatabaseV4 extends PwDatabase {
 		if (!super.isGroupSearchable(group, omitBackup)) {
 			return false;
 		}
-		
+
 		PwGroupV4 g = (PwGroupV4) group;
-		
+
 		return g.isSearchEnabled();
 	}
-	
+
 }

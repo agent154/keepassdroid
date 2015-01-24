@@ -30,24 +30,24 @@ import com.keepassdroid.database.PwDbHeader;
 import com.keepassdroid.database.exception.PwDbOutputException;
 
 public abstract class PwDbOutput {
-	
-	protected OutputStream mOS;
-	
+
+	protected OutputStream	mOS;
+
 	public static PwDbOutput getInstance(PwDatabase pm, OutputStream os) {
-		if ( pm instanceof PwDatabaseV3 ) {
-			return new PwDbV3Output((PwDatabaseV3)pm, os);
-		} else if ( pm instanceof PwDatabaseV4 ) {
-			return new PwDbV4Output((PwDatabaseV4)pm, os);
+		if (pm instanceof PwDatabaseV3) {
+			return new PwDbV3Output((PwDatabaseV3) pm, os);
+		} else if (pm instanceof PwDatabaseV4) {
+			return new PwDbV4Output((PwDatabaseV4) pm, os);
 		}
-		
+
 		return null;
 	}
-	
+
 	protected PwDbOutput(OutputStream os) {
 		mOS = os;
 	}
-	
-	protected SecureRandom setIVs(PwDbHeader header) throws PwDbOutputException  {
+
+	protected SecureRandom setIVs(PwDbHeader header) throws PwDbOutputException {
 		SecureRandom random;
 		try {
 			random = SecureRandom.getInstance("SHA1PRNG");
@@ -57,12 +57,12 @@ public abstract class PwDbOutput {
 		random.nextBytes(header.encryptionIV);
 		random.nextBytes(header.masterSeed);
 		random.nextBytes(header.transformSeed);
-		
+
 		return random;
 	}
-	
+
 	public abstract void output() throws PwDbOutputException;
-	
+
 	public abstract PwDbHeader outputHeader(OutputStream os) throws PwDbOutputException;
-	
+
 }

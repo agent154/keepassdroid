@@ -27,7 +27,7 @@ public class LockingListActivity extends ListActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		TimeoutHelper.pause(this);
 	}
 

@@ -27,17 +27,17 @@ import android.widget.LinearLayout;
 import com.android.keepass.R;
 
 public class EntryContentsView extends LinearLayout {
-	
+
 	public EntryContentsView(Context context) {
 		this(context, null);
 	}
-	
+
 	public EntryContentsView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
+
 		inflate(context);
 	}
-	
+
 	private void inflate(Context context) {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		inflater.inflate(R.layout.entry_view_contents, this);

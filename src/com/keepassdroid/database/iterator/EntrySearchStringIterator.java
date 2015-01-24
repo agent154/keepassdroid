@@ -28,7 +28,7 @@ import com.keepassdroid.database.SearchParameters;
 import com.keepassdroid.database.SearchParametersV4;
 
 public abstract class EntrySearchStringIterator implements Iterator<String> {
-	
+
 	public static EntrySearchStringIterator getInstance(PwEntry e) {
 		if (e instanceof PwEntryV3) {
 			return new EntrySearchStringIteratorV3((PwEntryV3) e);
@@ -38,7 +38,7 @@ public abstract class EntrySearchStringIterator implements Iterator<String> {
 			throw new RuntimeException("This should not be possible");
 		}
 	}
-	
+
 	public static EntrySearchStringIterator getInstance(PwEntry e, SearchParameters sp) {
 		if (e instanceof PwEntryV3) {
 			return new EntrySearchStringIteratorV3((PwEntryV3) e, sp);
@@ -48,7 +48,7 @@ public abstract class EntrySearchStringIterator implements Iterator<String> {
 			throw new RuntimeException("This should not be possible");
 		}
 	}
-	
+
 	@Override
 	public abstract boolean hasNext();
 
@@ -58,8 +58,7 @@ public abstract class EntrySearchStringIterator implements Iterator<String> {
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException("This iterator cannot be used to remove strings.");
-		
+
 	}
-	
 
 }

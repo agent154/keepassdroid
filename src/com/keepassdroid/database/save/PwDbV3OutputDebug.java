@@ -29,8 +29,8 @@ import com.keepassdroid.database.PwDbHeaderV3;
 import com.keepassdroid.database.exception.PwDbOutputException;
 
 public class PwDbV3OutputDebug extends PwDbV3Output {
-	PwDatabaseV3Debug debugDb;
-	private boolean noHeaderHash;
+	PwDatabaseV3Debug	debugDb;
+	private boolean		noHeaderHash;
 
 	public PwDbV3OutputDebug(PwDatabaseV3 pm, OutputStream os) {
 		this(pm, os, false);
@@ -45,14 +45,13 @@ public class PwDbV3OutputDebug extends PwDbV3Output {
 	@Override
 	protected SecureRandom setIVs(PwDbHeader h) throws PwDbOutputException {
 		PwDbHeaderV3 header = (PwDbHeaderV3) h;
-		
-		
+
 		// Reuse random values to test equivalence in debug mode
 		PwDbHeaderV3 origHeader = debugDb.dbHeader;
 		System.arraycopy(origHeader.encryptionIV, 0, header.encryptionIV, 0, origHeader.encryptionIV.length);
 		System.arraycopy(origHeader.masterSeed, 0, header.masterSeed, 0, origHeader.masterSeed.length);
 		System.arraycopy(origHeader.transformSeed, 0, header.transformSeed, 0, origHeader.transformSeed.length);
-		
+
 		return null;
 	}
 

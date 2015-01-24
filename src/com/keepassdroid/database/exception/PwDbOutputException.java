@@ -31,5 +31,5 @@ public class PwDbOutputException extends Exception {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3321212743159473368L;
+	private static final long	serialVersionUID	= 3321212743159473368L;
 }

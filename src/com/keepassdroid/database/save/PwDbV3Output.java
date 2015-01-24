@@ -50,12 +50,12 @@ import com.keepassdroid.stream.LEDataOutputStream;
 import com.keepassdroid.stream.NullOutputStream;
 
 public class PwDbV3Output extends PwDbOutput {
-	private PwDatabaseV3 mPM;
-	private byte[] headerHashBlock;
-	
+	private PwDatabaseV3	mPM;
+	private byte[]				headerHashBlock;
+
 	public PwDbV3Output(PwDatabaseV3 pm, OutputStream os) {
 		super(os);
-		
+
 		mPM = pm;
 
 	}
@@ -68,20 +68,20 @@ public class PwDbV3Output extends PwDbOutput {
 			throw new PwDbOutputException("Key creation failed: " + e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void output() throws PwDbOutputException {
 		prepForOutput();
-		
+
 		PwDbHeader header = outputHeader(mOS);
-		
+
 		byte[] finalKey = getFinalKey(header);
-		
+
 		Cipher cipher;
 		try {
 			if (mPM.algorithm == PwEncryptionAlgorithm.Rjindal) {
 				cipher = CipherFactory.getInstance("AES/CBC/PKCS5Padding");
-			} else if (mPM.algorithm == PwEncryptionAlgorithm.Twofish){
+			} else if (mPM.algorithm == PwEncryptionAlgorithm.Twofish) {
 				cipher = CipherFactory.getInstance("TWOFISH/CBC/PKCS7PADDING");
 			} else {
 				throw new Exception();
@@ -91,7 +91,7 @@ public class PwDbV3Output extends PwDbOutput {
 		}
 
 		try {
-			cipher.init( Cipher.ENCRYPT_MODE, new SecretKeySpec(finalKey, "AES" ), new IvParameterSpec(header.encryptionIV) );
+			cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(finalKey, "AES"), new IvParameterSpec(header.encryptionIV));
 			CipherOutputStream cos = new CipherOutputStream(mOS, cipher);
 			BufferedOutputStream bos = new BufferedOutputStream(cos);
 			outputPlanGroupAndEntries(bos);
@@ -106,9 +106,10 @@ public class PwDbV3Output extends PwDbOutput {
 			throw new PwDbOutputException("Failed to output final encrypted part.");
 		}
 	}
-	
+
 	private void prepForOutput() {
-		// Before we output the header, we should sort our list of groups and remove any orphaned nodes that are no longer part of the group hierarchy
+		// Before we output the header, we should sort our list of groups and remove any orphaned nodes that are no longer
+		// part of the group hierarchy
 		sortGroupsForOutput();
 	}
 
@@ -118,22 +119,22 @@ public class PwDbV3Output extends PwDbOutput {
 		header.signature1 = PwDbHeader.PWM_DBSIG_1;
 		header.signature2 = PwDbHeaderV3.DBSIG_2;
 		header.flags = PwDbHeaderV3.FLAG_SHA2;
-		
-		if ( mPM.getEncAlgorithm() == PwEncryptionAlgorithm.Rjindal ) {
+
+		if (mPM.getEncAlgorithm() == PwEncryptionAlgorithm.Rjindal) {
 			header.flags |= PwDbHeaderV3.FLAG_RIJNDAEL;
-		} else if ( mPM.getEncAlgorithm() == PwEncryptionAlgorithm.Twofish ) {
+		} else if (mPM.getEncAlgorithm() == PwEncryptionAlgorithm.Twofish) {
 			header.flags |= PwDbHeaderV3.FLAG_TWOFISH;
 		} else {
 			throw new PwDbOutputException("Unsupported algorithm.");
 		}
-		
+
 		header.version = PwDbHeaderV3.DBVER_DW;
 		header.numGroups = mPM.getGroups().size();
 		header.numEntries = mPM.entries.size();
 		header.numKeyEncRounds = mPM.getNumKeyEncRecords();
-		
+
 		setIVs(header);
-		
+
 		// Content checksum
 		MessageDigest md = null;
 		try {
@@ -141,7 +142,7 @@ public class PwDbV3Output extends PwDbOutput {
 		} catch (NoSuchAlgorithmException e) {
 			throw new PwDbOutputException("SHA-256 not implemented here.");
 		}
-		
+
 		// Header checksum
 		MessageDigest headerDigest;
 		try {
@@ -164,7 +165,7 @@ public class PwDbV3Output extends PwDbOutput {
 		}
 		byte[] headerHash = headerDigest.digest();
 		headerHashBlock = getHeaderHashBuffer(headerHash);
-		
+
 		// Output database for the purpose of calculating the content checksum
 		nos = new NullOutputStream();
 		DigestOutputStream dos = new DigestOutputStream(nos, md);
@@ -178,7 +179,7 @@ public class PwDbV3Output extends PwDbOutput {
 		}
 
 		header.contentsHash = md.digest();
-		
+
 		// Output header for real output, containing content hash
 		pho = new PwDbHeaderOutputV3(header, os);
 		try {
@@ -191,26 +192,26 @@ public class PwDbV3Output extends PwDbOutput {
 		} catch (IOException e) {
 			throw new PwDbOutputException(e);
 		}
-		
+
 		return header;
 	}
-	
-	public void outputPlanGroupAndEntries(OutputStream os) throws PwDbOutputException  {
+
+	public void outputPlanGroupAndEntries(OutputStream os) throws PwDbOutputException {
 		LEDataOutputStream los = new LEDataOutputStream(os);
-		
+
 		if (useHeaderHash() && headerHashBlock != null) {
-		    try {
-			    los.writeUShort(0x0000);
-			    los.writeInt(headerHashBlock.length);
-			    los.write(headerHashBlock);
-		    } catch (IOException e) {
-			    throw new PwDbOutputException("Failed to output header hash: " + e.getMessage());
-		    }
+			try {
+				los.writeUShort(0x0000);
+				los.writeInt(headerHashBlock.length);
+				los.write(headerHashBlock);
+			} catch (IOException e) {
+				throw new PwDbOutputException("Failed to output header hash: " + e.getMessage());
+			}
 		}
-		
+
 		// Groups
 		List<PwGroup> groups = mPM.getGroups();
-		for ( int i = 0; i < groups.size(); i++ ) {
+		for (int i = 0; i < groups.size(); i++) {
 			PwGroupV3 pg = (PwGroupV3) groups.get(i);
 			PwGroupOutputV3 pgo = new PwGroupOutputV3(pg, os);
 			try {
@@ -219,9 +220,9 @@ public class PwDbV3Output extends PwDbOutput {
 				throw new PwDbOutputException("Failed to output a group: " + e.getMessage());
 			}
 		}
-		
+
 		// Entries
-		for (int i = 0; i < mPM.entries.size(); i++ ) {
+		for (int i = 0; i < mPM.entries.size(); i++) {
 			PwEntryV3 pe = (PwEntryV3) mPM.entries.get(i);
 			PwEntryOutputV3 peo = new PwEntryOutputV3(pe, os);
 			try {
@@ -231,29 +232,29 @@ public class PwDbV3Output extends PwDbOutput {
 			}
 		}
 	}
-	
+
 	private void sortGroupsForOutput() {
 		List<PwGroup> groupList = new ArrayList<PwGroup>();
-		
+
 		// Rebuild list according to coalation sorting order removing any orphaned groups
 		List<PwGroup> roots = mPM.getGrpRoots();
-		for ( int i = 0; i < roots.size(); i++ ) {
+		for (int i = 0; i < roots.size(); i++) {
 			sortGroup((PwGroupV3) roots.get(i), groupList);
 		}
-		
+
 		mPM.setGroups(groupList);
 	}
-	
+
 	private void sortGroup(PwGroupV3 group, List<PwGroup> groupList) {
 		// Add current group
 		groupList.add(group);
-		
+
 		// Recurse over children
-		for ( int i = 0; i < group.childGroups.size(); i++ ) {
+		for (int i = 0; i < group.childGroups.size(); i++) {
 			sortGroup((PwGroupV3) group.childGroups.get(i), groupList);
 		}
 	}
-	
+
 	private byte[] getHeaderHashBuffer(byte[] headerDigest) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -263,28 +264,28 @@ public class PwDbV3Output extends PwDbOutput {
 			return null;
 		}
 	}
-	
+
 	private void writeExtData(byte[] headerDigest, OutputStream os) throws IOException {
 		LEDataOutputStream los = new LEDataOutputStream(os);
-		
-	    writeExtDataField(los, 0x0001, headerDigest, headerDigest.length);
-	    byte[] headerRandom = new byte[32];
-	    SecureRandom rand = new SecureRandom();
-	    rand.nextBytes(headerRandom);
-	    writeExtDataField(los, 0x0002, headerRandom, headerRandom.length);
-	    writeExtDataField(los, 0xFFFF, null, 0);
-		
+
+		writeExtDataField(los, 0x0001, headerDigest, headerDigest.length);
+		byte[] headerRandom = new byte[32];
+		SecureRandom rand = new SecureRandom();
+		rand.nextBytes(headerRandom);
+		writeExtDataField(los, 0x0002, headerRandom, headerRandom.length);
+		writeExtDataField(los, 0xFFFF, null, 0);
+
 	}
 
 	private void writeExtDataField(LEDataOutputStream los, int fieldType, byte[] data, int fieldSize) throws IOException {
 		los.writeUShort(fieldType);
 		los.writeInt(fieldSize);
 		if (data != null) {
-		    los.write(data);
+			los.write(data);
 		}
-		
+
 	}
-	
+
 	protected boolean useHeaderHash() {
 		return true;
 	}

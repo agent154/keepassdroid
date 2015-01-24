@@ -35,24 +35,24 @@ import com.keepassdroid.database.edit.SetPassword;
 
 public class SetPasswordDialog extends CancelDialog {
 
-	private byte[] masterKey;
-	private String mKeyfile;
-	private FileOnFinish mFinish;
-		
+	private byte[]				masterKey;
+	private String				mKeyfile;
+	private FileOnFinish	mFinish;
+
 	public SetPasswordDialog(Context context) {
 		super(context);
 	}
-	
+
 	public SetPasswordDialog(Context context, FileOnFinish finish) {
 		super(context);
-		
+
 		mFinish = finish;
 	}
-	
+
 	public byte[] getKey() {
 		return masterKey;
 	}
-	
+
 	public String keyfile() {
 		return mKeyfile;
 	}
@@ -61,51 +61,51 @@ public class SetPasswordDialog extends CancelDialog {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.set_password);
-		
+
 		setTitle(R.string.password_title);
-		
+
 		// Ok button
 		Button okButton = (Button) findViewById(R.id.ok);
 		okButton.setOnClickListener(new View.OnClickListener() {
-			
+
 			public void onClick(View v) {
 				TextView passView = (TextView) findViewById(R.id.pass_password);
 				String pass = passView.getText().toString();
 				TextView passConfView = (TextView) findViewById(R.id.pass_conf_password);
 				String confpass = passConfView.getText().toString();
-				
+
 				// Verify that passwords match
-				if ( ! pass.equals(confpass) ) {
+				if (!pass.equals(confpass)) {
 					// Passwords do not match
 					Toast.makeText(getContext(), R.string.error_pass_match, Toast.LENGTH_LONG).show();
 					return;
 				}
-				
+
 				TextView keyfileView = (TextView) findViewById(R.id.pass_keyfile);
 				String keyfile = keyfileView.getText().toString();
 				mKeyfile = keyfile;
-				
+
 				// Verify that a password or keyfile is set
-				if ( pass.length() == 0 && keyfile.length() == 0 ) {
+				if (pass.length() == 0 && keyfile.length() == 0) {
 					Toast.makeText(getContext(), R.string.error_nopass, Toast.LENGTH_LONG).show();
 					return;
-					
+
 				}
-				
+
 				SetPassword sp = new SetPassword(App.getDB(), pass, keyfile, new AfterSave(mFinish, new Handler()));
 				ProgressTask pt = new ProgressTask(getContext(), sp, R.string.saving_database);
 				pt.run();
 			}
-			
+
 		});
-		
+
 		// Cancel button
 		Button cancel = (Button) findViewById(R.id.cancel);
 		cancel.setOnClickListener(new View.OnClickListener() {
-			
+
 			public void onClick(View v) {
 				cancel();
-				if ( mFinish != null ) {
+				if (mFinish != null) {
 					mFinish.run();
 				}
 			}
@@ -113,8 +113,8 @@ public class SetPasswordDialog extends CancelDialog {
 	}
 
 	private class AfterSave extends OnFinish {
-		private FileOnFinish mFinish;
-		
+		private FileOnFinish	mFinish;
+
 		public AfterSave(FileOnFinish finish, Handler handler) {
 			super(finish, handler);
 			mFinish = finish;
@@ -122,15 +122,15 @@ public class SetPasswordDialog extends CancelDialog {
 
 		@Override
 		public void run() {
-			if ( mSuccess ) {
-				if ( mFinish != null ) {
+			if (mSuccess) {
+				if (mFinish != null) {
 					mFinish.setFilename(mKeyfile);
 				}
 				dismiss();
 			} else {
 				displayMessage(getContext());
 			}
-			
+
 			super.run();
 		}
 

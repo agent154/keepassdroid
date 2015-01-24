@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class CountInputStream extends InputStream {
-	InputStream is;
-	long bytes = 0;
-	
+	InputStream	is;
+	long				bytes	= 0;
+
 	public CountInputStream(InputStream is) {
 		this.is = is;
 	}

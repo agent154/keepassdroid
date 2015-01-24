@@ -24,12 +24,12 @@ import android.content.Context;
 
 public class CancelDialog extends Dialog {
 
-	private boolean mCanceled = false; 
-	
+	private boolean	mCanceled	= false;
+
 	public CancelDialog(Context context) {
 		super(context);
 	}
-	
+
 	public boolean canceled() {
 		return mCanceled;
 	}

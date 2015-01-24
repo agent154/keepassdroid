@@ -39,22 +39,22 @@ import com.keepassdroid.database.exception.InvalidPasswordException;
 import com.keepassdroid.database.exception.KeyFileEmptyException;
 
 public class LoadDB extends RunnableOnFinish {
-	private String mFileName;
-	private String mPass;
-	private String mKey;
-	private Database mDb;
-	private Context mCtx;
-	private boolean mRememberKeyfile;
-	
+	private String		mFileName;
+	private String		mPass;
+	private String		mKey;
+	private Database	mDb;
+	private Context		mCtx;
+	private boolean		mRememberKeyfile;
+
 	public LoadDB(Database db, Context ctx, String fileName, String pass, String key, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mCtx = ctx;
 		mFileName = fileName;
 		mPass = pass;
 		mKey = key;
-		
+
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
 		mRememberKeyfile = prefs.getBoolean(ctx.getString(R.string.keyfile_key), ctx.getResources().getBoolean(R.bool.keyfile_default));
 	}
@@ -63,9 +63,9 @@ public class LoadDB extends RunnableOnFinish {
 	public void run() {
 		try {
 			mDb.LoadData(mCtx, mFileName, mPass, mKey, mStatus);
-			
+
 			saveFileData(mFileName, mKey);
-		
+
 		} catch (ArcFourException e) {
 			finish(false, mCtx.getString(R.string.error_arc4));
 			return;
@@ -100,18 +100,16 @@ public class LoadDB extends RunnableOnFinish {
 			finish(false, mCtx.getString(R.string.error_out_of_memory));
 			return;
 		}
-		
+
 		finish(true);
 	}
-	
+
 	private void saveFileData(String fileName, String key) {
-		if ( ! mRememberKeyfile ) {
+		if (!mRememberKeyfile) {
 			key = "";
 		}
-		
+
 		App.getFileHistory().createFile(fileName, key);
 	}
-	
-
 
 }

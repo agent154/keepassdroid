@@ -33,7 +33,6 @@ import com.keepassdroid.utils.SprEngine;
 import com.keepassdroid.utils.SprEngineV4;
 import com.keepassdroid.view.EntrySection;
 
-
 public class EntryActivityV4 extends EntryActivity {
 
 	@Override
@@ -44,23 +43,23 @@ public class EntryActivityV4 extends EntryActivity {
 	@Override
 	protected void fillData(boolean trimList) {
 		super.fillData(trimList);
-		
+
 		ViewGroup group = (ViewGroup) findViewById(R.id.extra_strings);
-		
+
 		if (trimList) {
 			group.removeAllViews();
 		}
-		
+
 		PwEntryV4 entry = (PwEntryV4) mEntry;
-		
+
 		PwDatabase pm = App.getDB().pm;
 		SprEngine spr = SprEngineV4.getInstance(pm);
-		
+
 		// Display custom strings
 		if (entry.strings.size() > 0) {
 			for (Map.Entry<String, ProtectedString> pair : entry.strings.entrySet()) {
 				String key = pair.getKey();
-				
+
 				if (!PwEntryV4.IsStandardString(key)) {
 					String text = pair.getValue().toString();
 					View view = new EntrySection(this, null, key, spr.compile(text, entry, pm));
@@ -68,8 +67,7 @@ public class EntryActivityV4 extends EntryActivity {
 				}
 			}
 		}
-			
-	}
 
+	}
 
 }

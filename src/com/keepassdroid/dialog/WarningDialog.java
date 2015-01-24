@@ -29,16 +29,16 @@ import android.preference.PreferenceManager;
 import com.android.keepass.R;
 
 public class WarningDialog extends AlertDialog {
-	
-	protected String warning;
-	private int showKey;
+
+	protected String	warning;
+	private int				showKey;
 
 	public WarningDialog(Context context, int dontShowKey) {
 		super(context);
-		
+
 		this.showKey = dontShowKey;
 	}
-	
+
 	public WarningDialog(Context context, int warningKey, int dontShowKey) {
 		this(context, dontShowKey);
 
@@ -49,17 +49,17 @@ public class WarningDialog extends AlertDialog {
 	protected void onCreate(Bundle savedInstanceState) {
 		Context ctx = getContext();
 		setMessage(warning);
-		
+
 		setButton(AlertDialog.BUTTON1, ctx.getText(android.R.string.ok), new DialogInterface.OnClickListener() {
-			
+
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dismiss();
 			}
 		});
-		
+
 		setButton(AlertDialog.BUTTON2, ctx.getText(R.string.beta_dontask), new DialogInterface.OnClickListener() {
-			
+
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Context ctx = getContext();
@@ -67,11 +67,11 @@ public class WarningDialog extends AlertDialog {
 				SharedPreferences.Editor edit = prefs.edit();
 				edit.putBoolean(ctx.getString(showKey), false);
 				edit.commit();
-				
+
 				dismiss();
 			}
 		});
-		
+
 		super.onCreate(savedInstanceState);
 	}
 

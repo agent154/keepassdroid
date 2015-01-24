@@ -26,7 +26,7 @@ import com.keepassdroid.utils.StrUtil;
 import com.keepassdroid.utils.UuidUtil;
 
 public class EntrySearchHandlerV4 extends EntrySearchHandler {
-	private SearchParametersV4 sp;
+	private SearchParametersV4	sp;
 
 	protected EntrySearchHandlerV4(SearchParameters sp, List<PwEntry> listStorage) {
 		super(sp, listStorage);
@@ -40,9 +40,8 @@ public class EntrySearchHandlerV4 extends EntrySearchHandler {
 			String hex = UuidUtil.toHexString(entry.uuid);
 			return StrUtil.indexOfIgnoreCase(hex, sp.searchString, Locale.ENGLISH) >= 0;
 		}
-		
+
 		return false;
 	}
 
-	
 }

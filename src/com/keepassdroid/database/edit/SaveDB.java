@@ -25,19 +25,19 @@ import com.keepassdroid.Database;
 import com.keepassdroid.database.exception.PwDbOutputException;
 
 public class SaveDB extends RunnableOnFinish {
-	private Database mDb;
-	private boolean mDontSave;
+	private Database	mDb;
+	private boolean		mDontSave;
 
 	public SaveDB(Database db, OnFinish finish, boolean dontSave) {
 		super(finish);
-		
+
 		mDb = db;
 		mDontSave = dontSave;
 	}
 
 	public SaveDB(Database db, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mDontSave = false;
 	}
@@ -45,7 +45,7 @@ public class SaveDB extends RunnableOnFinish {
 	@Override
 	public void run() {
 
-		if ( ! mDontSave ) {
+		if (!mDontSave) {
 			try {
 				mDb.SaveData();
 			} catch (IOException e) {
@@ -55,9 +55,8 @@ public class SaveDB extends RunnableOnFinish {
 				// TODO: Restore
 				throw new RuntimeException(e);
 				/*
-				finish(false, e.getMessage());
-				return;
-				*/
+				 * finish(false, e.getMessage()); return;
+				 */
 			}
 		}
 

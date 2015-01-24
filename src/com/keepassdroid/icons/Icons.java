@@ -25,18 +25,17 @@ import android.util.SparseIntArray;
 
 import com.android.keepass.R;
 
-
 public class Icons {
-	private static SparseIntArray icons = null;
-	
+	private static SparseIntArray	icons	= null;
+
 	private static void buildList() {
 		if (icons == null) {
 			icons = new SparseIntArray();
-			
+
 			Class<com.android.keepass.R.drawable> c = com.android.keepass.R.drawable.class;
-			
+
 			Field[] fields = c.getFields();
-			
+
 			for (int i = 0; i < fields.length; i++) {
 				String fieldName = fields[i].getName();
 				if (fieldName.matches("ic\\d{2}.*")) {
@@ -45,29 +44,29 @@ public class Icons {
 					if (num > 69) {
 						continue;
 					}
-					
+
 					int resId;
 					try {
 						resId = fields[i].getInt(null);
 					} catch (Exception e) {
 						continue;
 					}
-					
+
 					icons.put(num, resId);
 				}
 			}
-		}	
+		}
 	}
-	
+
 	public static int iconToResId(int iconId) {
 		buildList();
-		
+
 		return icons.get(iconId, R.drawable.ic99_blank);
 	}
-	
+
 	public static int count() {
 		buildList();
-		
+
 		return icons.size();
 	}
 

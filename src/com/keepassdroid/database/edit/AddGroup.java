@@ -24,48 +24,46 @@ import com.keepassdroid.database.PwDatabase;
 import com.keepassdroid.database.PwGroup;
 
 public class AddGroup extends RunnableOnFinish {
-	protected Database mDb;
-	private String mName;
-	private int mIconID;
-	private PwGroup mGroup;
-	private PwGroup mParent;
-	protected boolean mDontSave;
-	
-	
+	protected Database	mDb;
+	private String			mName;
+	private int					mIconID;
+	private PwGroup			mGroup;
+	private PwGroup			mParent;
+	protected boolean		mDontSave;
+
 	public static AddGroup getInstance(Database db, String name, int iconid, PwGroup parent, OnFinish finish, boolean dontSave) {
 		return new AddGroup(db, name, iconid, parent, finish, dontSave);
 	}
-	
-	
+
 	private AddGroup(Database db, String name, int iconid, PwGroup parent, OnFinish finish, boolean dontSave) {
 		super(finish);
-		
+
 		mDb = db;
 		mName = name;
 		mIconID = iconid;
 		mParent = parent;
 		mDontSave = dontSave;
-		
+
 		mFinish = new AfterAdd(mFinish);
 	}
-	
+
 	@Override
 	public void run() {
 		PwDatabase pm = mDb.pm;
-		
+
 		// Generate new group
 		mGroup = pm.createGroup();
 		mGroup.initNewGroup(mName, pm.newGroupId());
 		mGroup.icon = mDb.pm.iconFactory.getIcon(mIconID);
 		pm.addGroupTo(mGroup, mParent);
-		
-		//mParent.sortGroupsByName();
-		
+
+		// mParent.sortGroupsByName();
+
 		// Commit to disk
 		SaveDB save = new SaveDB(mDb, mFinish, mDontSave);
 		save.run();
 	}
-	
+
 	private class AfterAdd extends OnFinish {
 
 		public AfterAdd(OnFinish finish) {
@@ -75,17 +73,16 @@ public class AddGroup extends RunnableOnFinish {
 		@Override
 		public void run() {
 			PwDatabase pm = mDb.pm;
-			if ( mSuccess ) {
+			if (mSuccess) {
 				// Mark parent group dirty
 				mDb.dirty.add(mParent);
 			} else {
 				pm.removeGroupFrom(mGroup, mParent);
 			}
-			
+
 			super.run();
 		}
 
 	}
-	
 
 }

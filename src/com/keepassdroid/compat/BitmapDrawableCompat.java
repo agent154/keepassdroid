@@ -27,8 +27,8 @@ import android.graphics.drawable.BitmapDrawable;
 
 // This compatiblity hack can go away when support for Android 1.5 api level 3 is dropped
 public class BitmapDrawableCompat {
-	private static Constructor<BitmapDrawable> constResBitmap;
-	
+	private static Constructor<BitmapDrawable>	constResBitmap;
+
 	static {
 		try {
 			constResBitmap = BitmapDrawable.class.getConstructor(Resources.class, Bitmap.class);
@@ -37,7 +37,7 @@ public class BitmapDrawableCompat {
 			// This constructor is not supported
 		}
 	}
-	
+
 	public static BitmapDrawable getBitmapDrawable(Resources res, Bitmap bitmap) {
 		if (constResBitmap != null) {
 			try {
@@ -46,7 +46,7 @@ public class BitmapDrawableCompat {
 				// Do nothing, fall through to the safe constructor
 			}
 		}
-		
+
 		return new BitmapDrawable(bitmap);
 	}
 

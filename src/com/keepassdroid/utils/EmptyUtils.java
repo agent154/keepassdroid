@@ -26,11 +26,11 @@ public class EmptyUtils {
 	public static boolean isNullOrEmpty(String str) {
 		return (str == null) || (str.length() == 0);
 	}
-	
+
 	public static boolean isNullOrEmpty(byte[] buf) {
 		return (buf == null) || (buf.length == 0);
 	}
-	
+
 	public static boolean isNullOrEmpty(PwDate date) {
 		return (date == null) || date.equals(PwEntryV3.DEFAULT_PWDATE);
 	}

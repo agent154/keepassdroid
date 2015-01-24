@@ -27,24 +27,23 @@ import com.android.keepass.R;
 import com.keepassdroid.database.edit.OnFinish;
 import com.keepassdroid.database.edit.RunnableOnFinish;
 
-/** Designed to Pop up a progress dialog, run a thread in the background, 
- *  run cleanup in the current thread, close the dialog.  Without blocking 
- *  the current thread.
- *  
+/**
+ * Designed to Pop up a progress dialog, run a thread in the background, run cleanup in the current thread, close the
+ * dialog. Without blocking the current thread.
+ * 
  * @author bpellin
- *
  */
 public class ProgressTask implements Runnable {
-	private Context mCtx;
-	private Handler mHandler;
-	private RunnableOnFinish mTask;
-	private ProgressDialog mPd;
-	
+	private Context						mCtx;
+	private Handler						mHandler;
+	private RunnableOnFinish	mTask;
+	private ProgressDialog		mPd;
+
 	public ProgressTask(Context ctx, RunnableOnFinish task, int messageId) {
 		mCtx = ctx;
 		mTask = task;
 		mHandler = new Handler();
-		
+
 		// Show process dialog
 		mPd = new ProgressDialog(mCtx);
 		mPd.setCanceledOnTouchOutside(false);
@@ -54,22 +53,21 @@ public class ProgressTask implements Runnable {
 		// Set code to run when this is finished
 		mTask.setStatus(new UpdateStatus(ctx, mHandler, mPd));
 		mTask.mFinish = new AfterTask(task.mFinish, mHandler);
-		
+
 	}
-	
+
 	public void run() {
 		// Show process dialog
 		mPd.show();
-		
-			
+
 		// Start Thread to Run task
 		Thread t = new Thread(mTask);
 		t.start();
-		
+
 	}
-	
+
 	private class AfterTask extends OnFinish {
-		
+
 		public AfterTask(OnFinish finish, Handler handler) {
 			super(finish, handler);
 		}
@@ -77,20 +75,20 @@ public class ProgressTask implements Runnable {
 		@Override
 		public void run() {
 			super.run();
-			
+
 			// Remove the progress dialog
 			mHandler.post(new CloseProcessDialog());
-			
+
 		}
-		
+
 	}
-	
+
 	private class CloseProcessDialog implements Runnable {
 
 		public void run() {
 			mPd.dismiss();
 		}
-		
+
 	}
-	
+
 }

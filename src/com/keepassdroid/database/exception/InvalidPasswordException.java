@@ -24,12 +24,12 @@ public class InvalidPasswordException extends InvalidDBException {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8729476180242058319L;
+	private static final long	serialVersionUID	= -8729476180242058319L;
 
 	public InvalidPasswordException(String str) {
 		super(str);
 	}
-	
+
 	public InvalidPasswordException() {
 		super();
 	}

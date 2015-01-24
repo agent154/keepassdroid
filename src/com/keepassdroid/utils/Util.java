@@ -38,46 +38,46 @@ public class Util {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 		return clipboard.getText().toString();
 	}
-	
+
 	public static void copyToClipboard(Context context, String text) throws SamsungClipboardException {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-		
+
 		try {
 			clipboard.setText(text);
 		} catch (NullPointerException e) {
 			throw new SamsungClipboardException(e);
 		}
 	}
-	
+
 	public static void gotoUrl(Context context, String url) throws ActivityNotFoundException {
-		if ( url != null && url.length() > 0 ) {
+		if (url != null && url.length() > 0) {
 			Uri uri = Uri.parse(url);
 			context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
 		}
 	}
-	
+
 	public static void gotoUrl(Context context, int resId) throws ActivityNotFoundException {
 		gotoUrl(context, context.getString(resId));
 	}
 
 	public static String getEditText(Activity act, int resId) {
-		TextView te =  (TextView) act.findViewById(resId);
-		
+		TextView te = (TextView) act.findViewById(resId);
+
 		if (te != null) {
 			return te.getText().toString();
 		} else {
 			return "";
 		}
 	}
-	
+
 	public static void setEditText(Activity act, int resId, String str) {
-		TextView te =  (TextView) act.findViewById(resId);
-		
+		TextView te = (TextView) act.findViewById(resId);
+
 		if (te != null) {
 			te.setText(str);
 		}
 	}
-	
+
 	public static void copyStream(InputStream in, OutputStream out) throws IOException {
 		byte[] buf = new byte[1024];
 		int read;
@@ -86,6 +86,4 @@ public class Util {
 		}
 	}
 
-	
-	
 }

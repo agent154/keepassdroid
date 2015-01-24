@@ -28,36 +28,38 @@ import com.keepassdroid.utils.Types;
 
 public class PwEntryOutputV3 {
 	// Constants
-	public static final byte[] UUID_FIELD_TYPE =     LEDataOutputStream.writeUShortBuf(1);
-	public static final byte[] GROUPID_FIELD_TYPE =  LEDataOutputStream.writeUShortBuf(2);
-	public static final byte[] IMAGEID_FIELD_TYPE =  LEDataOutputStream.writeUShortBuf(3);
-	public static final byte[] TITLE_FIELD_TYPE =    LEDataOutputStream.writeUShortBuf(4);
-	public static final byte[] URL_FIELD_TYPE =      LEDataOutputStream.writeUShortBuf(5);
-	public static final byte[] USERNAME_FIELD_TYPE =  LEDataOutputStream.writeUShortBuf(6);
-	public static final byte[] PASSWORD_FIELD_TYPE = LEDataOutputStream.writeUShortBuf(7);
-	public static final byte[] ADDITIONAL_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(8);
-	public static final byte[] CREATE_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(9);
-	public static final byte[] MOD_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(10);
-	public static final byte[] ACCESS_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(11);
-	public static final byte[] EXPIRE_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(12);
-	public static final byte[] BINARY_DESC_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(13);
-	public static final byte[] BINARY_DATA_FIELD_TYPE =   LEDataOutputStream.writeUShortBuf(14);
-	public static final byte[] END_FIELD_TYPE =     LEDataOutputStream.writeUShortBuf(0xFFFF);
-	public static final byte[] LONG_FOUR = LEDataOutputStream.writeIntBuf(4);
-	public static final byte[] UUID_FIELD_SIZE =    LEDataOutputStream.writeIntBuf(16);
-	public static final byte[] DATE_FIELD_SIZE =    LEDataOutputStream.writeIntBuf(5);
-	public static final byte[] IMAGEID_FIELD_SIZE = LONG_FOUR;
-	public static final byte[] LEVEL_FIELD_SIZE =   LONG_FOUR;
-	public static final byte[] FLAGS_FIELD_SIZE =   LONG_FOUR;
-	public static final byte[] ZERO_FIELD_SIZE =    LEDataOutputStream.writeIntBuf(0);
-	public static final byte[] ZERO_FIVE       =   {0x00, 0x00, 0x00, 0x00, 0x00};
-	public static final byte[] TEST = {0x33, 0x33, 0x33, 0x33};
+	public static final byte[]	UUID_FIELD_TYPE					= LEDataOutputStream.writeUShortBuf(1);
+	public static final byte[]	GROUPID_FIELD_TYPE			= LEDataOutputStream.writeUShortBuf(2);
+	public static final byte[]	IMAGEID_FIELD_TYPE			= LEDataOutputStream.writeUShortBuf(3);
+	public static final byte[]	TITLE_FIELD_TYPE				= LEDataOutputStream.writeUShortBuf(4);
+	public static final byte[]	URL_FIELD_TYPE					= LEDataOutputStream.writeUShortBuf(5);
+	public static final byte[]	USERNAME_FIELD_TYPE			= LEDataOutputStream.writeUShortBuf(6);
+	public static final byte[]	PASSWORD_FIELD_TYPE			= LEDataOutputStream.writeUShortBuf(7);
+	public static final byte[]	ADDITIONAL_FIELD_TYPE		= LEDataOutputStream.writeUShortBuf(8);
+	public static final byte[]	CREATE_FIELD_TYPE				= LEDataOutputStream.writeUShortBuf(9);
+	public static final byte[]	MOD_FIELD_TYPE					= LEDataOutputStream.writeUShortBuf(10);
+	public static final byte[]	ACCESS_FIELD_TYPE				= LEDataOutputStream.writeUShortBuf(11);
+	public static final byte[]	EXPIRE_FIELD_TYPE				= LEDataOutputStream.writeUShortBuf(12);
+	public static final byte[]	BINARY_DESC_FIELD_TYPE	= LEDataOutputStream.writeUShortBuf(13);
+	public static final byte[]	BINARY_DATA_FIELD_TYPE	= LEDataOutputStream.writeUShortBuf(14);
+	public static final byte[]	END_FIELD_TYPE					= LEDataOutputStream.writeUShortBuf(0xFFFF);
+	public static final byte[]	LONG_FOUR								= LEDataOutputStream.writeIntBuf(4);
+	public static final byte[]	UUID_FIELD_SIZE					= LEDataOutputStream.writeIntBuf(16);
+	public static final byte[]	DATE_FIELD_SIZE					= LEDataOutputStream.writeIntBuf(5);
+	public static final byte[]	IMAGEID_FIELD_SIZE			= LONG_FOUR;
+	public static final byte[]	LEVEL_FIELD_SIZE				= LONG_FOUR;
+	public static final byte[]	FLAGS_FIELD_SIZE				= LONG_FOUR;
+	public static final byte[]	ZERO_FIELD_SIZE					= LEDataOutputStream.writeIntBuf(0);
+	public static final byte[]	ZERO_FIVE								= { 0x00, 0x00, 0x00, 0x00, 0x00 };
+	public static final byte[]	TEST										= { 0x33, 0x33, 0x33, 0x33 };
 
-	private OutputStream mOS;
-	private PwEntryV3 mPE;
-	private long outputBytes = 0;
-	
-	/** Output the PwGroupV3 to the stream
+	private OutputStream				mOS;
+	private PwEntryV3						mPE;
+	private long								outputBytes							= 0;
+
+	/**
+	 * Output the PwGroupV3 to the stream
+	 * 
 	 * @param pe
 	 * @param os
 	 */
@@ -66,28 +68,28 @@ public class PwEntryOutputV3 {
 		mOS = os;
 	}
 
-	//NOTE: Need be to careful about using ints.  The actual type written to file is a unsigned int
+	// NOTE: Need be to careful about using ints. The actual type written to file is a unsigned int
 	public void output() throws IOException {
-		
-		outputBytes += 134;  // Length of fixed size fields
-		
+
+		outputBytes += 134; // Length of fixed size fields
+
 		// UUID
 		mOS.write(UUID_FIELD_TYPE);
 		mOS.write(UUID_FIELD_SIZE);
 		mOS.write(Types.UUIDtoBytes(mPE.getUUID()));
-		
+
 		// Group ID
 		mOS.write(GROUPID_FIELD_TYPE);
 		mOS.write(LONG_FOUR);
 		mOS.write(LEDataOutputStream.writeIntBuf(mPE.groupId));
-		
+
 		// Image ID
 		mOS.write(IMAGEID_FIELD_TYPE);
 		mOS.write(LONG_FOUR);
 		mOS.write(LEDataOutputStream.writeIntBuf(mPE.icon.iconId));
 
 		// Title
-		//byte[] title = mPE.title.getBytes("UTF-8");
+		// byte[] title = mPE.title.getBytes("UTF-8");
 		mOS.write(TITLE_FIELD_TYPE);
 		int titleLen = Types.writeCString(mPE.title, mOS);
 		outputBytes += titleLen;
@@ -96,16 +98,16 @@ public class PwEntryOutputV3 {
 		mOS.write(URL_FIELD_TYPE);
 		int urlLen = Types.writeCString(mPE.url, mOS);
 		outputBytes += urlLen;
-		
+
 		// Username
 		mOS.write(USERNAME_FIELD_TYPE);
 		int userLen = Types.writeCString(mPE.username, mOS);
 		outputBytes += userLen;
-		
+
 		// Password
 		byte[] password = mPE.getPasswordBytes();
 		mOS.write(PASSWORD_FIELD_TYPE);
-		mOS.write(LEDataOutputStream.writeIntBuf(password.length+1));
+		mOS.write(LEDataOutputStream.writeIntBuf(password.length + 1));
 		mOS.write(password);
 		mOS.write(0);
 		outputBytes += password.length + 1;
@@ -117,7 +119,7 @@ public class PwEntryOutputV3 {
 
 		// Create date
 		writeDate(CREATE_FIELD_TYPE, mPE.tCreation.getCDate());
-		
+
 		// Modification date
 		writeDate(MOD_FIELD_TYPE, mPE.tLastMod.getCDate());
 
@@ -126,12 +128,12 @@ public class PwEntryOutputV3 {
 
 		// Expiration date
 		writeDate(EXPIRE_FIELD_TYPE, mPE.tExpire.getCDate());
-	
+
 		// Binary desc
 		mOS.write(BINARY_DESC_FIELD_TYPE);
 		int descLen = Types.writeCString(mPE.binaryDesc, mOS);
 		outputBytes += descLen;
-	
+
 		// Binary data
 		int dataLen = writeByteArray(mPE.getBinaryData());
 		outputBytes += dataLen;
@@ -140,35 +142,37 @@ public class PwEntryOutputV3 {
 		mOS.write(END_FIELD_TYPE);
 		mOS.write(ZERO_FIELD_SIZE);
 	}
-	
+
 	private int writeByteArray(byte[] data) throws IOException {
 		int dataLen;
-		if ( data != null ) {
+		if (data != null) {
 			dataLen = data.length;
 		} else {
 			dataLen = 0;
 		}
 		mOS.write(BINARY_DATA_FIELD_TYPE);
 		mOS.write(LEDataOutputStream.writeIntBuf(dataLen));
-		if ( data != null ) {
+		if (data != null) {
 			mOS.write(data);
 		}
-		
+
 		return dataLen;
 
 	}
-	
+
 	private void writeDate(byte[] type, byte[] date) throws IOException {
 		mOS.write(type);
 		mOS.write(DATE_FIELD_SIZE);
-		if ( date != null ) {
+		if (date != null) {
 			mOS.write(date);
 		} else {
 			mOS.write(ZERO_FIVE);
 		}
 	}
-	
-	/** Returns the number of bytes written by the stream
+
+	/**
+	 * Returns the number of bytes written by the stream
+	 * 
 	 * @return Number of bytes written
 	 */
 	public long getLength() {

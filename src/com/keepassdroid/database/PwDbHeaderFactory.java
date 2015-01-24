@@ -24,10 +24,10 @@ public class PwDbHeaderFactory {
 		if (db instanceof PwDatabaseV3) {
 			return new PwDbHeaderV3();
 		} else if (db instanceof PwDatabaseV4) {
-			return new PwDbHeaderV4((PwDatabaseV4)db);
+			return new PwDbHeaderV4((PwDatabaseV4) db);
 		} else {
 			throw new RuntimeException("Not implemented.");
-			
+
 		}
 	}
 }

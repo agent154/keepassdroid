@@ -25,7 +25,7 @@ public class BouncyCastleProvider extends Provider {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6705090615178002994L;
+	private static final long	serialVersionUID	= -6705090615178002994L;
 
 	public BouncyCastleProvider() {
 		super("BouncyCastleProvider", 1.0, "");

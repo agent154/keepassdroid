@@ -24,21 +24,21 @@ import com.keepassdroid.database.PwEntry;
 import com.keepassdroid.database.PwGroup;
 
 public class UpdateEntry extends RunnableOnFinish {
-	private Database mDb;
-	private PwEntry mOldE;
-	private PwEntry mNewE;
-	
+	private Database	mDb;
+	private PwEntry		mOldE;
+	private PwEntry		mNewE;
+
 	public UpdateEntry(Database db, PwEntry oldE, PwEntry newE, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mOldE = oldE;
 		mNewE = newE;
-		
+
 		// Keep backup of original values in case save fails
 		PwEntry backup;
 		backup = (PwEntry) mOldE.clone();
-		
+
 		mFinish = new AfterUpdate(backup, finish);
 	}
 
@@ -47,46 +47,44 @@ public class UpdateEntry extends RunnableOnFinish {
 		// Update entry with new values
 		mOldE.assign(mNewE);
 		mOldE.touch(true, true);
-		
-		
+
 		// Commit to disk
 		SaveDB save = new SaveDB(mDb, mFinish);
 		save.run();
 	}
-	
+
 	private class AfterUpdate extends OnFinish {
-		private PwEntry mBackup;
-		
+		private PwEntry	mBackup;
+
 		public AfterUpdate(PwEntry backup, OnFinish finish) {
 			super(finish);
-			
+
 			mBackup = backup;
 		}
-		
+
 		@Override
 		public void run() {
-			if ( mSuccess ) {
+			if (mSuccess) {
 				// Mark group dirty if title or icon changes
-				if ( ! mBackup.getTitle().equals(mNewE.getTitle()) || ! mBackup.getIcon().equals(mNewE.getIcon()) ) {
+				if (!mBackup.getTitle().equals(mNewE.getTitle()) || !mBackup.getIcon().equals(mNewE.getIcon())) {
 					PwGroup parent = mBackup.getParent();
-					if ( parent != null ) {
+					if (parent != null) {
 						// Resort entries
 						parent.sortEntriesByName();
 
 						// Mark parent group dirty
 						mDb.dirty.add(parent);
-						
+
 					}
 				}
 			} else {
 				// If we fail to save, back out changes to global structure
 				mOldE.assign(mBackup);
 			}
-			
+
 			super.run();
 		}
-		
-	}
 
+	}
 
 }

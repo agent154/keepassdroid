@@ -24,9 +24,9 @@ import android.widget.Toast;
 
 public class UIToastTask implements Runnable {
 
-	private String mText;
-	private Context mCtx;
-	
+	private String	mText;
+	private Context	mCtx;
+
 	public UIToastTask(Context ctx, int resId) {
 		mCtx = ctx;
 		mText = ctx.getString(resId);
@@ -39,9 +39,7 @@ public class UIToastTask implements Runnable {
 
 	public void run() {
 		Toast.makeText(mCtx, mText, Toast.LENGTH_LONG).show();
-		
+
 	}
-	
-	
 
 }

@@ -25,31 +25,31 @@ import com.keepassdroid.database.PwEntry;
 import com.keepassdroid.database.PwGroup;
 
 public class AddEntry extends RunnableOnFinish {
-	protected Database mDb;
-	private PwEntry mEntry;
-	
+	protected Database	mDb;
+	private PwEntry			mEntry;
+
 	public static AddEntry getInstance(Database db, PwEntry entry, OnFinish finish) {
 		return new AddEntry(db, entry, finish);
 	}
-	
+
 	protected AddEntry(Database db, PwEntry entry, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mEntry = entry;
-		
+
 		mFinish = new AfterAdd(mFinish);
 	}
-	
+
 	@Override
 	public void run() {
 		mDb.pm.addEntryTo(mEntry, mEntry.getParent());
-		
+
 		// Commit to disk
 		SaveDB save = new SaveDB(mDb, mFinish);
 		save.run();
 	}
-	
+
 	private class AfterAdd extends OnFinish {
 
 		public AfterAdd(OnFinish finish) {
@@ -59,20 +59,19 @@ public class AddEntry extends RunnableOnFinish {
 		@Override
 		public void run() {
 			PwDatabase pm = mDb.pm;
-			if ( mSuccess ) {
-				
+			if (mSuccess) {
+
 				PwGroup parent = mEntry.getParent();
 
 				// Mark parent group dirty
 				mDb.dirty.add(parent);
-				
+
 			} else {
 				pm.removeEntryFrom(mEntry, mEntry.getParent());
 			}
-			
+
 			super.run();
 		}
 	}
-	
 
 }

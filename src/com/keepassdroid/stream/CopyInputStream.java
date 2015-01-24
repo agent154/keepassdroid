@@ -24,13 +24,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * This class copies everything pulled through its input stream into the 
- * output stream. 
+ * This class copies everything pulled through its input stream into the output stream.
  */
 public class CopyInputStream extends InputStream {
-	private InputStream is;
-	private OutputStream os;
-	
+	private InputStream		is;
+	private OutputStream	os;
+
 	public CopyInputStream(InputStream is, OutputStream os) {
 		this.is = is;
 		this.os = os;
@@ -60,33 +59,33 @@ public class CopyInputStream extends InputStream {
 	@Override
 	public int read() throws IOException {
 		int data = is.read();
-		
+
 		if (data != -1) {
 			os.write(data);
 		}
-		
+
 		return data;
 	}
 
 	@Override
 	public int read(byte[] b, int offset, int length) throws IOException {
 		int len = is.read(b, offset, length);
-		
+
 		if (len != -1) {
 			os.write(b, offset, len);
 		}
-		
+
 		return len;
 	}
 
 	@Override
 	public int read(byte[] b) throws IOException {
 		int len = is.read(b);
-		
+
 		if (len != -1) {
 			os.write(b, 0, len);
 		}
-		
+
 		return len;
 	}
 

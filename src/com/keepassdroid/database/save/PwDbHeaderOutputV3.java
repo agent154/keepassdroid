@@ -22,19 +22,18 @@ package com.keepassdroid.database.save;
 import java.io.IOException;
 import java.io.OutputStream;
 
-
 import com.keepassdroid.database.PwDbHeaderV3;
 import com.keepassdroid.stream.LEDataOutputStream;
 
 public class PwDbHeaderOutputV3 {
-	private PwDbHeaderV3 mHeader;
-	private OutputStream mOS;
-	
+	private PwDbHeaderV3	mHeader;
+	private OutputStream	mOS;
+
 	public PwDbHeaderOutputV3(PwDbHeaderV3 header, OutputStream os) {
 		mHeader = header;
 		mOS = os;
 	}
-	
+
 	public void outputStart() throws IOException {
 		mOS.write(LEDataOutputStream.writeIntBuf(mHeader.signature1));
 		mOS.write(LEDataOutputStream.writeIntBuf(mHeader.signature2));
@@ -45,22 +44,22 @@ public class PwDbHeaderOutputV3 {
 		mOS.write(LEDataOutputStream.writeIntBuf(mHeader.numGroups));
 		mOS.write(LEDataOutputStream.writeIntBuf(mHeader.numEntries));
 	}
-	
+
 	public void outputContentHash() throws IOException {
 		mOS.write(mHeader.contentsHash);
 	}
-	
+
 	public void outputEnd() throws IOException {
 		mOS.write(mHeader.transformSeed);
 		mOS.write(LEDataOutputStream.writeIntBuf(mHeader.numKeyEncRounds));
 	}
-	
+
 	public void output() throws IOException {
 		outputStart();
 		outputContentHash();
 		outputEnd();
 	}
-	
+
 	public void close() throws IOException {
 		mOS.close();
 	}

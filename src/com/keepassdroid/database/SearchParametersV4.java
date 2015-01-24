@@ -20,11 +20,11 @@
 package com.keepassdroid.database;
 
 public class SearchParametersV4 extends SearchParameters implements Cloneable {
-	public static SearchParametersV4 DEFAULT = new SearchParametersV4();
-	
-	public boolean searchInOther = true;
-	public boolean searchInUUIDs = false;
-	public boolean searchInTags = true;
+	public static SearchParametersV4	DEFAULT				= new SearchParametersV4();
+
+	public boolean										searchInOther	= true;
+	public boolean										searchInUUIDs	= false;
+	public boolean										searchInTags	= true;
 
 	@Override
 	public Object clone() {

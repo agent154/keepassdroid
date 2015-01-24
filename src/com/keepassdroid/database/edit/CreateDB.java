@@ -19,7 +19,6 @@
  */
 package com.keepassdroid.database.edit;
 
-
 import com.keepassdroid.Database;
 import com.keepassdroid.app.App;
 import com.keepassdroid.database.PwDatabaseV3;
@@ -27,11 +26,11 @@ import com.keepassdroid.database.PwEncryptionAlgorithm;
 
 public class CreateDB extends RunnableOnFinish {
 
-	private final int DEFAULT_ENCRYPTION_ROUNDS = 300;
-	
-	private String mFilename;
-	private boolean mDontSave;
-	
+	private final int	DEFAULT_ENCRYPTION_ROUNDS	= 300;
+
+	private String		mFilename;
+	private boolean		mDontSave;
+
 	public CreateDB(String filename, OnFinish finish, boolean dontSave) {
 		super(finish);
 
@@ -44,7 +43,7 @@ public class CreateDB extends RunnableOnFinish {
 		// Create new database record
 		Database db = new Database();
 		App.setDB(db);
-		
+
 		// Create the PwDatabaseV3
 		PwDatabaseV3 pm = new PwDatabaseV3();
 		pm.algorithm = PwEncryptionAlgorithm.Rjindal;
@@ -52,23 +51,22 @@ public class CreateDB extends RunnableOnFinish {
 		pm.name = "KeePass Password Manager";
 		// Build the root group
 		pm.constructTree(null);
-		
+
 		// Set Database state
 		db.pm = pm;
 		db.mFilename = mFilename;
 		db.setLoaded();
-		
+
 		// Add a couple default groups
 		AddGroup internet = AddGroup.getInstance(db, "Internet", 1, pm.rootGroup, null, true);
 		internet.run();
 		AddGroup email = AddGroup.getInstance(db, "eMail", 19, pm.rootGroup, null, true);
 		email.run();
-		
+
 		// Commit changes
 		SaveDB save = new SaveDB(db, mFinish, mDontSave);
 		mFinish = null;
 		save.run();
-
 
 	}
 

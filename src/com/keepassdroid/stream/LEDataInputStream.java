@@ -22,40 +22,41 @@ package com.keepassdroid.stream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
-/** Little endian version of the DataInputStream
+/**
+ * Little endian version of the DataInputStream
+ * 
  * @author bpellin
- *
  */
 public class LEDataInputStream extends InputStream {
 
-	public static final long INT_TO_LONG_MASK = 0xffffffffL;
-	
-	private InputStream baseStream;
+	public static final long	INT_TO_LONG_MASK	= 0xffffffffL;
+
+	private InputStream				baseStream;
 
 	public LEDataInputStream(InputStream in) {
 		baseStream = in;
 	}
-	
-	/** Read a 32-bit value and return it as a long, so that it can
-	 *  be interpreted as an unsigned integer.
+
+	/**
+	 * Read a 32-bit value and return it as a long, so that it can be interpreted as an unsigned integer.
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
 	public long readUInt() throws IOException {
 		return readUInt(baseStream);
 	}
-	
+
 	public int readInt() throws IOException {
 		return readInt(baseStream);
 	}
-	
+
 	public long readLong() throws IOException {
 		byte[] buf = readBytes(8);
-		
+
 		return readLong(buf, 0);
 	}
-	
+
 	@Override
 	public int available() throws IOException {
 		return baseStream.available();
@@ -104,81 +105,78 @@ public class LEDataInputStream extends InputStream {
 
 	public byte[] readBytes(int length) throws IOException {
 		byte[] buf = new byte[length];
-		
+
 		int count = 0;
-		while ( count < length ) {
+		while (count < length) {
 			int read = read(buf, count, length - count);
-			
+
 			// Reached end
-			if ( read == -1 ) {
+			if (read == -1) {
 				// Stop early
 				byte[] early = new byte[count];
 				System.arraycopy(buf, 0, early, 0, count);
 				return early;
 			}
-			
+
 			count += read;
 		}
-		
+
 		return buf;
 	}
 
 	public static int readUShort(InputStream is) throws IOException {
-		  byte[] buf = new byte[2];
-		  
-		  is.read(buf, 0, 2);
-		  
-		  return readUShort(buf, 0); 
-	  }
-	
+		byte[] buf = new byte[2];
+
+		is.read(buf, 0, 2);
+
+		return readUShort(buf, 0);
+	}
+
 	public int readUShort() throws IOException {
 		return readUShort(baseStream);
 	}
 
 	/**
-	   * Read an unsigned 16-bit value.
-	   * 
-	   * @param buf
-	   * @param offset
-	   * @return
-	   */
-	  public static int readUShort( byte[] buf, int offset ) {
-	    return (buf[offset + 0] & 0xFF) + ((buf[offset + 1] & 0xFF) << 8);
-	  }
-
-	public static long readLong( byte buf[], int offset ) {
-		return ((long)buf[offset + 0] & 0xFF) + (((long)buf[offset + 1] & 0xFF) << 8) 
-		+ (((long)buf[offset + 2] & 0xFF) << 16) + (((long)buf[offset + 3] & 0xFF) << 24) 
-		+ (((long)buf[offset + 4] & 0xFF) << 32) + (((long)buf[offset + 5] & 0xFF) << 40) 
-		+ (((long)buf[offset + 6] & 0xFF) << 48) + (((long)buf[offset + 7] & 0xFF) << 56);
+	 * Read an unsigned 16-bit value.
+	 * 
+	 * @param buf
+	 * @param offset
+	 * @return
+	 */
+	public static int readUShort(byte[] buf, int offset) {
+		return (buf[offset + 0] & 0xFF) + ((buf[offset + 1] & 0xFF) << 8);
 	}
 
-	public static long readUInt( byte buf[], int offset ) {
-		  return (readInt(buf, offset) & INT_TO_LONG_MASK);
-	  }
+	public static long readLong(byte buf[], int offset) {
+		return ((long) buf[offset + 0] & 0xFF) + (((long) buf[offset + 1] & 0xFF) << 8) + (((long) buf[offset + 2] & 0xFF) << 16) + (((long) buf[offset + 3] & 0xFF) << 24)
+				+ (((long) buf[offset + 4] & 0xFF) << 32) + (((long) buf[offset + 5] & 0xFF) << 40) + (((long) buf[offset + 6] & 0xFF) << 48) + (((long) buf[offset + 7] & 0xFF) << 56);
+	}
+
+	public static long readUInt(byte buf[], int offset) {
+		return (readInt(buf, offset) & INT_TO_LONG_MASK);
+	}
 
 	public static int readInt(InputStream is) throws IOException {
-		  byte[] buf = new byte[4];
-	
-		  is.read(buf, 0, 4);
-		  
-		  return readInt(buf, 0);
-	  }
+		byte[] buf = new byte[4];
+
+		is.read(buf, 0, 4);
+
+		return readInt(buf, 0);
+	}
 
 	public static long readUInt(InputStream is) throws IOException {
-		  return (readInt(is) & INT_TO_LONG_MASK);
-	  }
+		return (readInt(is) & INT_TO_LONG_MASK);
+	}
 
 	/**
-	   * Read a 32-bit value.
-	   * 
-	   * @param buf
-	   * @param offset
-	   * @return
-	   */
-	  public static int readInt( byte buf[], int offset ) {
-	    return (buf[offset + 0] & 0xFF) + ((buf[offset + 1] & 0xFF) << 8) + ((buf[offset + 2] & 0xFF) << 16)
-	           + ((buf[offset + 3] & 0xFF) << 24);
-	  }
+	 * Read a 32-bit value.
+	 * 
+	 * @param buf
+	 * @param offset
+	 * @return
+	 */
+	public static int readInt(byte buf[], int offset) {
+		return (buf[offset + 0] & 0xFF) + ((buf[offset + 1] & 0xFF) << 8) + ((buf[offset + 2] & 0xFF) << 16) + ((buf[offset + 3] & 0xFF) << 24);
+	}
 
 }

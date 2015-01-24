@@ -32,13 +32,10 @@ public class ImporterV3Debug extends ImporterV3 {
 	protected PwDatabaseV3Debug createDB() {
 		return new PwDatabaseV3Debug();
 	}
-	
+
 	@Override
-	public PwDatabaseV3Debug openDatabase(InputStream inStream, String password,
-			String keyfile, UpdateStatus status) throws IOException,
-			InvalidDBException {
+	public PwDatabaseV3Debug openDatabase(InputStream inStream, String password, String keyfile, UpdateStatus status) throws IOException, InvalidDBException {
 		return (PwDatabaseV3Debug) super.openDatabase(inStream, password, keyfile, status);
 	}
-
 
 }

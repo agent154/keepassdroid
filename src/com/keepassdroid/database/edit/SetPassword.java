@@ -21,21 +21,20 @@ package com.keepassdroid.database.edit;
 
 import java.io.IOException;
 
-
 import com.keepassdroid.Database;
 import com.keepassdroid.database.PwDatabase;
 import com.keepassdroid.database.exception.InvalidKeyFileException;
 
 public class SetPassword extends RunnableOnFinish {
-	
-	private String mPassword;
-	private String mKeyfile;
-	private Database mDb;
-	private boolean mDontSave;
-	
+
+	private String		mPassword;
+	private String		mKeyfile;
+	private Database	mDb;
+	private boolean		mDontSave;
+
 	public SetPassword(Database db, String password, String keyfile, OnFinish finish) {
 		super(finish);
-		
+
 		mDb = db;
 		mPassword = password;
 		mKeyfile = keyfile;
@@ -44,7 +43,7 @@ public class SetPassword extends RunnableOnFinish {
 
 	public SetPassword(Database db, String password, String keyfile, OnFinish finish, boolean dontSave) {
 		super(finish);
-		
+
 		mDb = db;
 		mPassword = password;
 		mKeyfile = keyfile;
@@ -54,7 +53,7 @@ public class SetPassword extends RunnableOnFinish {
 	@Override
 	public void run() {
 		PwDatabase pm = mDb.pm;
-		
+
 		byte[] backupKey = new byte[pm.masterKey.length];
 		System.arraycopy(pm.masterKey, 0, backupKey, 0, backupKey.length);
 
@@ -70,42 +69,45 @@ public class SetPassword extends RunnableOnFinish {
 			finish(false, e.getMessage());
 			return;
 		}
-		
+
 		// Save Database
 		mFinish = new AfterSave(backupKey, mFinish);
 		SaveDB save = new SaveDB(mDb, mFinish, mDontSave);
 		save.run();
 	}
-	
+
 	private class AfterSave extends OnFinish {
-		private byte[] mBackup;
-		
+		private byte[]	mBackup;
+
 		public AfterSave(byte[] backup, OnFinish finish) {
 			super(finish);
-			
+
 			mBackup = backup;
 		}
 
 		@Override
 		public void run() {
-			if ( ! mSuccess ) {
+			if (!mSuccess) {
 				// Erase the current master key
 				erase(mDb.pm.masterKey);
 				mDb.pm.masterKey = mBackup;
 			}
-			
+
 			super.run();
 		}
 
 	}
-	
-	/** Overwrite the array as soon as we don't need it to avoid keeping the extra data in memory
+
+	/**
+	 * Overwrite the array as soon as we don't need it to avoid keeping the extra data in memory
+	 * 
 	 * @param array
 	 */
 	private void erase(byte[] array) {
-		if ( array == null ) return;
-		
-		for ( int i = 0; i < array.length; i++ ) {
+		if (array == null)
+			return;
+
+		for (int i = 0; i < array.length; i++) {
 			array[i] = 0;
 		}
 	}

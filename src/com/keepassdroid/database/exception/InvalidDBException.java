@@ -32,6 +32,6 @@ public class InvalidDBException extends Exception {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5191964825154190923L;
+	private static final long	serialVersionUID	= 5191964825154190923L;
 
 }

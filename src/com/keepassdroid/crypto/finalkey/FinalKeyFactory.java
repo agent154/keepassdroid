@@ -25,10 +25,10 @@ public class FinalKeyFactory {
 	public static FinalKey createFinalKey() {
 		return createFinalKey(false);
 	}
-	
+
 	public static FinalKey createFinalKey(boolean androidOverride) {
 		// Prefer the native final key implementation
-		if ( !CipherFactory.deviceBlacklisted() && !androidOverride && NativeFinalKey.availble() ) {
+		if (!CipherFactory.deviceBlacklisted() && !androidOverride && NativeFinalKey.availble()) {
 			return new NativeFinalKey();
 		} else {
 			// Fall back on the android crypto implementation

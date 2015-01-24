@@ -26,10 +26,10 @@ import com.keepassdroid.database.PwDatabaseV4;
 import com.keepassdroid.database.PwEntryV4;
 
 public class SprContextV4 implements Cloneable {
-	public PwDatabaseV4 db;
-	public PwEntryV4 entry;
-	public Map<String, String> refsCache = new HashMap<String, String>();
-	
+	public PwDatabaseV4					db;
+	public PwEntryV4						entry;
+	public Map<String, String>	refsCache	= new HashMap<String, String>();
+
 	public SprContextV4(PwDatabaseV4 db, PwEntryV4 entry) {
 		this.db = db;
 		this.entry = entry;

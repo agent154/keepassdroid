@@ -25,8 +25,8 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 
 public class EditorCompat {
-	private static Method apply;
-	
+	private static Method	apply;
+
 	static {
 		try {
 			apply = Activity.class.getMethod("apply", (Class<SharedPreferences.Editor>[]) null);
@@ -39,7 +39,7 @@ public class EditorCompat {
 			}
 		}
 	}
-	
+
 	public static void apply(SharedPreferences.Editor edit) {
 		try {
 			apply.invoke(edit, (Object[]) null);
@@ -47,7 +47,7 @@ public class EditorCompat {
 			// Shouldn't be possible, but call commit directly if this happens
 			edit.commit();
 		}
-		
+
 	}
 
 }

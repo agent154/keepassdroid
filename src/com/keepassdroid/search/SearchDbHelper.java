@@ -42,25 +42,25 @@ import com.keepassdroid.database.PwGroupV3;
 import com.keepassdroid.database.PwGroupV4;
 
 public class SearchDbHelper {
-	private final Context mCtx;
-	
+	private final Context	mCtx;
+
 	public SearchDbHelper(Context ctx) {
 		mCtx = ctx;
 	}
-	
+
 	private boolean omitBackup() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mCtx);
 		return prefs.getBoolean(mCtx.getString(R.string.omitbackup_key), mCtx.getResources().getBoolean(R.bool.omitbackup_default));
-		
+
 	}
-	
+
 	public PwGroup search(Database db, String qStr) {
 		PwDatabase pm = db.pm;
 
 		PwGroup group;
-		if ( pm instanceof PwDatabaseV3 ) {
+		if (pm instanceof PwDatabaseV3) {
 			group = new PwGroupV3();
-		} else if ( pm instanceof PwDatabaseV4 ) {
+		} else if (pm instanceof PwDatabaseV4) {
 			group = new PwGroupV4();
 		} else {
 			Log.d("SearchDbHelper", "Tried to search with unknown db");
@@ -68,25 +68,25 @@ public class SearchDbHelper {
 		}
 		group.name = mCtx.getString(R.string.search_results);
 		group.childEntries = new ArrayList<PwEntry>();
-		
+
 		// Search all entries
 		Locale loc = Locale.getDefault();
 		qStr = qStr.toLowerCase(loc);
 		boolean isOmitBackup = omitBackup();
-		
+
 		Queue<PwGroup> worklist = new LinkedList<PwGroup>();
 		if (pm.rootGroup != null) {
 			worklist.add(pm.rootGroup);
 		}
-		
+
 		while (worklist.size() != 0) {
 			PwGroup top = worklist.remove();
-			
+
 			if (pm.isGroupSearchable(top, isOmitBackup)) {
 				for (PwEntry entry : top.childEntries) {
 					processEntries(entry, group.childEntries, qStr, loc);
 				}
-				
+
 				for (PwGroup childGroup : top.childGroups) {
 					if (childGroup != null) {
 						worklist.add(childGroup);
@@ -94,10 +94,10 @@ public class SearchDbHelper {
 				}
 			}
 		}
-		
+
 		return group;
 	}
-	
+
 	public void processEntries(PwEntry entry, List<PwEntry> results, String qStr, Locale loc) {
 		// Search all strings in the entry
 		Iterator<String> iter = entry.stringIterator();
@@ -112,5 +112,5 @@ public class SearchDbHelper {
 			}
 		}
 	}
-	
+
 }

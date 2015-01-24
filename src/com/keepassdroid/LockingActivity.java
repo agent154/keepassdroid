@@ -28,7 +28,7 @@ public class LockingActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		TimeoutHelper.pause(this);
 	}
 

@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import android.app.Activity;
 
 public class ActivityCompat {
-	private static Method invalidateOptMenu;
-	
+	private static Method	invalidateOptMenu;
+
 	static {
 		try {
 			invalidateOptMenu = Activity.class.getMethod("invalidateOptionsMenu", (Class<Activity>[]) null);
@@ -33,7 +33,7 @@ public class ActivityCompat {
 			// Do nothing if method dosen't exist
 		}
 	}
-	
+
 	public static void invalidateOptionsMenu(Activity act) {
 		if (invalidateOptMenu != null) {
 			try {

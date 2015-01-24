@@ -25,13 +25,13 @@ import android.app.backup.SharedPreferencesBackupHelper;
 
 @SuppressLint("NewApi")
 public class SettingsBackupAgent extends BackupAgentHelper {
-	
-	private static final String PREFS_BACKUP_KEY = "prefs";
-	
+
+	private static final String	PREFS_BACKUP_KEY	= "prefs";
+
 	@Override
 	public void onCreate() {
 		String defaultPrefs = this.getPackageName() + "_preferences";
-		
+
 		SharedPreferencesBackupHelper prefHelper = new SharedPreferencesBackupHelper(this, defaultPrefs);
 		addHelper(PREFS_BACKUP_KEY, prefHelper);
 	}

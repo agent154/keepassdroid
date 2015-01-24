@@ -31,18 +31,16 @@ import com.keepassdroid.database.CrsAlgorithm;
 
 public class PwStreamCipherFactory {
 	public static StreamCipher getInstance(CrsAlgorithm alg, byte[] key) {
-		if ( alg == CrsAlgorithm.Salsa20 ) {
+		if (alg == CrsAlgorithm.Salsa20) {
 			return getSalsa20(key);
-			
+
 		} else {
 			return null;
 		}
 	}
-	
-	
-	private static final byte[] SALSA_IV = new byte[]{ (byte)0xE8, 0x30, 0x09, 0x4B,
-            (byte)0x97, 0x20, 0x5D, 0x2A };
-	
+
+	private static final byte[]	SALSA_IV	= new byte[] { (byte) 0xE8, 0x30, 0x09, 0x4B, (byte) 0x97, 0x20, 0x5D, 0x2A };
+
 	private static StreamCipher getSalsa20(byte[] key) {
 		// Build stream cipher key
 		MessageDigest md;
@@ -53,13 +51,13 @@ public class PwStreamCipherFactory {
 			throw new RuntimeException("SHA 256 not supported");
 		}
 		byte[] key32 = md.digest(key);
-		
+
 		KeyParameter keyParam = new KeyParameter(key32);
 		ParametersWithIV ivParam = new ParametersWithIV(keyParam, SALSA_IV);
-		
+
 		StreamCipher cipher = new Salsa20Engine();
 		cipher.init(true, ivParam);
-		
+
 		return cipher;
 	}
 }

@@ -63,16 +63,16 @@ public class PwDatabaseV3 extends PwDatabase {
 	// private static final int PWM_SESSION_KEY_SIZE = 12;
 
 	// Special entry for settings
-	public PwEntry metaInfo;
+	public PwEntry								metaInfo;
 
 	// all entries
-	public List<PwEntry> entries = new ArrayList<PwEntry>();
+	public List<PwEntry>					entries	= new ArrayList<PwEntry>();
 	// all groups
-	public List<PwGroup> groups = new ArrayList<PwGroup>();
+	public List<PwGroup>					groups	= new ArrayList<PwGroup>();
 	// Algorithm used to encrypt the database
-	public PwEncryptionAlgorithm algorithm;
-	public int numKeyEncRounds;
-	
+	public PwEncryptionAlgorithm	algorithm;
+	public int										numKeyEncRounds;
+
 	@Override
 	public PwEncryptionAlgorithm getEncAlgorithm() {
 		return algorithm;
@@ -136,9 +136,8 @@ public class PwDatabaseV3 extends PwDatabase {
 	public List<PwEntry> getEntries(PwGroupV3 parent) {
 		List<PwEntry> kids = new ArrayList<PwEntry>();
 		/*
-		 * for( Iterator i = entries.iterator(); i.hasNext(); ) { PwEntryV3 ent
-		 * = (PwEntryV3)i.next(); if( ent.groupId == parent.groupId ) kids.add(
-		 * ent ); }
+		 * for( Iterator i = entries.iterator(); i.hasNext(); ) { PwEntryV3 ent = (PwEntryV3)i.next(); if( ent.groupId ==
+		 * parent.groupId ) kids.add( ent ); }
 		 */
 		for (int i = 0; i < entries.size(); i++) {
 			PwEntryV3 ent = (PwEntryV3) entries.get(i);
@@ -190,11 +189,8 @@ public class PwDatabaseV3 extends PwDatabase {
 	}
 
 	/*
-	public void removeGroup(PwGroupV3 group) {
-		group.parent.childGroups.remove(group);
-		groups.remove(group);
-	}
-	*/
+	 * public void removeGroup(PwGroupV3 group) { group.parent.childGroups.remove(group); groups.remove(group); }
+	 */
 
 	/**
 	 * Generates an unused random group id
@@ -210,14 +206,14 @@ public class PwDatabaseV3 extends PwDatabase {
 		while (true) {
 			newId = new PwGroupIdV3(random.nextInt());
 
-			if (!isGroupIdUsed(newId)) break;
+			if (!isGroupIdUsed(newId))
+				break;
 		}
 
 		return newId;
 	}
 
-	public byte[] getMasterKey(String key, String keyFileName)
-			throws InvalidKeyFileException, IOException {
+	public byte[] getMasterKey(String key, String keyFileName) throws InvalidKeyFileException, IOException {
 		assert (key != null && keyFileName != null);
 
 		if (key.length() > 0 && keyFileName.length() > 0) {
@@ -235,13 +231,11 @@ public class PwDatabaseV3 extends PwDatabase {
 	public byte[] getPasswordKey(String key) throws IOException {
 		return getPasswordKey(key, "ISO-8859-1");
 	}
-	
+
 	@Override
 	protected byte[] loadXmlKeyFile(String fileName) {
 		return null;
 	}
-
-
 
 	@Override
 	public long getNumRounds() {
@@ -265,25 +259,25 @@ public class PwDatabaseV3 extends PwDatabase {
 	@Override
 	public void addEntryTo(PwEntry newEntry, PwGroup parent) {
 		super.addEntryTo(newEntry, parent);
-		
+
 		// Add entry to root entries
 		entries.add(newEntry);
-		
+
 	}
 
 	@Override
 	public void addGroupTo(PwGroup newGroup, PwGroup parent) {
 		super.addGroupTo(newGroup, parent);
-		
+
 		// Add group to root groups
 		groups.add(newGroup);
-		
+
 	}
 
 	@Override
 	public void removeEntryFrom(PwEntry remove, PwGroup parent) {
 		super.removeEntryFrom(remove, parent);
-		
+
 		// Remove entry from root entry
 		entries.remove(remove);
 	}
@@ -291,7 +285,7 @@ public class PwDatabaseV3 extends PwDatabase {
 	@Override
 	public void removeGroupFrom(PwGroup remove, PwGroup parent) {
 		super.removeGroupFrom(remove, parent);
-		
+
 		// Remove group from root entry
 		groups.remove(remove);
 	}
@@ -300,7 +294,7 @@ public class PwDatabaseV3 extends PwDatabase {
 	public PwGroup createGroup() {
 		return new PwGroupV3();
 	}
-	
+
 	// TODO: This could still be refactored cleaner
 	public void copyEncrypted(byte[] buf, int offset, int size) {
 		// No-op
@@ -310,6 +304,7 @@ public class PwDatabaseV3 extends PwDatabase {
 	public void copyHeader(PwDbHeaderV3 header) {
 		// No-op
 	}
+
 	@Override
 	public boolean isBackup(PwGroup group) {
 		PwGroupV3 g = (PwGroupV3) group;
@@ -317,10 +312,10 @@ public class PwDatabaseV3 extends PwDatabase {
 			if (g.level == 0 && g.name.equalsIgnoreCase("Backup")) {
 				return true;
 			}
-			
+
 			g = g.parent;
 		}
-		
+
 		return false;
 	}
 
@@ -329,7 +324,7 @@ public class PwDatabaseV3 extends PwDatabase {
 		if (!super.isGroupSearchable(group, omitBackup)) {
 			return false;
 		}
-		
+
 		return !(omitBackup && isBackup(group));
 	}
 }

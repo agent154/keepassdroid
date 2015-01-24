@@ -20,14 +20,15 @@
 package com.keepassdroid.database;
 
 public class PwDatabaseV3Debug extends PwDatabaseV3 {
-	public byte[] postHeader;
-	public PwDbHeaderV3 dbHeader;
-	
+	public byte[]				postHeader;
+	public PwDbHeaderV3	dbHeader;
+
 	@Override
 	public void copyEncrypted(byte[] buf, int offset, int size) {
 		postHeader = new byte[size];
 		System.arraycopy(buf, offset, postHeader, 0, size);
 	}
+
 	@Override
 	public void copyHeader(PwDbHeaderV3 header) {
 		dbHeader = header;

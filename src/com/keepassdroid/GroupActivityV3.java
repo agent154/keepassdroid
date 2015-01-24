@@ -28,14 +28,14 @@ public class GroupActivityV3 extends GroupActivity {
 	@Override
 	protected PwGroupIdV3 retrieveGroupId(Intent i) {
 		int id = i.getIntExtra(KEY_ENTRY, -1);
-		
-		if ( id == -1 ) {
+
+		if (id == -1) {
 			return null;
 		}
-		
+
 		return new PwGroupIdV3(id);
 	}
-	
+
 	@Override
 	protected void setupButtons() {
 		super.setupButtons();

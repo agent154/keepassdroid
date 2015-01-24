@@ -32,70 +32,65 @@ import com.keepassdroid.view.GroupEmptyView;
 import com.keepassdroid.view.GroupViewOnlyView;
 
 public class SearchResults extends GroupBaseActivity {
-	
-	private Database mDb;
-	//private String mQuery;
-	
+
+	private Database	mDb;
+
+	// private String mQuery;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		if ( isFinishing() ) {
+
+		if (isFinishing()) {
 			return;
 		}
-		
+
 		setResult(KeePass.EXIT_NORMAL);
-		
+
 		mDb = App.getDB();
-		
-		// Likely the app has been killed exit the activity 
-		if ( ! mDb.Loaded() ) {
+
+		// Likely the app has been killed exit the activity
+		if (!mDb.Loaded()) {
 			finish();
 		}
 
 		performSearch(getSearchStr(getIntent()));
-		
+
 	}
-	
+
 	private void performSearch(String query) {
 		query(query.trim());
 	}
-	
+
 	private void query(String query) {
 		mGroup = mDb.Search(query);
 
-		if ( mGroup == null || mGroup.childEntries.size() < 1 ) {
+		if (mGroup == null || mGroup.childEntries.size() < 1) {
 			setContentView(new GroupEmptyView(this));
 		} else {
 			setContentView(new GroupViewOnlyView(this));
 		}
-		
+
 		setGroupTitle();
-		
+
 		setListAdapter(new PwGroupListAdapter(this, mGroup));
 	}
-	
+
 	/*
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		
-		mQuery = getSearchStr(intent);
-		performSearch();
-		//mGroup = processSearchIntent(intent);
-		//assert(mGroup != null);
-	}
-	*/
+	 * @Override protected void onNewIntent(Intent intent) { super.onNewIntent(intent);
+	 * 
+	 * mQuery = getSearchStr(intent); performSearch(); //mGroup = processSearchIntent(intent); //assert(mGroup != null); }
+	 */
 
 	private String getSearchStr(Intent queryIntent) {
-        // get and process search query here
-        final String queryAction = queryIntent.getAction();
-        if ( Intent.ACTION_SEARCH.equals(queryAction) ) {
-        	return queryIntent.getStringExtra(SearchManager.QUERY);
-        }
-        
-        return "";
-		
+		// get and process search query here
+		final String queryAction = queryIntent.getAction();
+		if (Intent.ACTION_SEARCH.equals(queryAction)) {
+			return queryIntent.getStringExtra(SearchManager.QUERY);
+		}
+
+		return "";
+
 	}
-	
+
 }
